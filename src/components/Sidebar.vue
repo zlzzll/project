@@ -45,7 +45,7 @@ const logout = () => {
         <div class="user-role">{{ userStore.currentUser?.role === 'doctor' ? '医生' : '护士' }}</div>
       </div>
       <div class="logout" @click="logout">
-        <i class="el-icon-switch-button"></i>
+        <i class="el-icon-switch-button">X</i>
       </div>
     </div>
   </div>

@@ -5,6 +5,7 @@ import PatientList from '../views/PatientList.vue';
 import PatientDetail from '../views/PatientDetail.vue';
 import MedicalRecord from '../views/MedicalRecord.vue';
 import NewRecord from '../views/NewRecord.vue';
+import Register from '../views/Register.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,6 +41,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/new-record',
     name: 'NewRecord',
     component: NewRecord
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   }
 ];
 

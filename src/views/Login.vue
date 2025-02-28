@@ -32,6 +32,10 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+const handleRegister = () => {
+  router.push('/register');
+};
 </script>
 
 <template>
@@ -43,20 +47,37 @@ const handleLogin = async () => {
       </div>
       <div class="login-form">
         <div class="form-item">
-          <label>用户名</label>
+          <span style="display: inline-block;padding-right: 2%;">邮箱✉️:</span>
           <input type="text" v-model="username" placeholder="请输入用户名" />
         </div>
+
         <div class="form-item">
-          <label>密码</label>
+          <span style="display: inline-block;padding-right: 2%;">密码🔒:</span>
           <input type="password" v-model="password" placeholder="请输入密码" @keyup.enter="handleLogin" />
         </div>
-        <div class="form-item">
+
+
+        <div class="form-btn">
           <button :disabled="loading" @click="handleLogin" class="login-btn">
             <span class="btn-text">{{ loading ? '登录中...' : '登录' }}</span>
           </button>
         </div>
+
+        <div class="register-btn">
+          <button @click="handleRegister" style="width: 80px; height: 35px; font-size: 12px;" >
+          <span class="btn-text"  >注册</span>
+        </button>
+        </div>
+
+        <div class="find-btn">
+          <button style="width:80px; height: 35px;font-size: 12px;">
+            <span class="btn-text">找回密码</span>
+          </button>
+        </div>
+
+
         <div class="login-tips">
-          <p>提示：用户名 doctor，密码 password</p>
+          <p>提示： 用户名 doctor，密码 password</p>
         </div>
       </div>
     </div>
@@ -79,12 +100,17 @@ const handleLogin = async () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .login-box {
-  width: 400px;
+  width: 600px;
   padding: 40px;
   background-color: white;
   border-radius: 8px;
@@ -94,12 +120,13 @@ const handleLogin = async () => {
 }
 
 @keyframes slideUp {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
-  to { 
-    opacity: 1; 
+
+  to {
+    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
@@ -119,12 +146,13 @@ const handleLogin = async () => {
 }
 
 @keyframes fadeInDown {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     transform: translateY(-20px);
   }
-  to { 
-    opacity: 1; 
+
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -135,6 +163,19 @@ const handleLogin = async () => {
   animation: fadeInDown 0.8s ease;
   animation-delay: 0.3s;
   animation-fill-mode: both;
+}
+
+.login-form {
+  /* text-align: center; */
+  animation: fadeIn 0.8s ease;
+  animation-delay: 0.5s;
+  animation-fill-mode: both;
+}
+
+.form-btn {
+  width: 520px;
+  padding-left: 120px;
+  padding-top: 20px;
 }
 
 .form-item {
@@ -157,12 +198,13 @@ const handleLogin = async () => {
 }
 
 @keyframes fadeInUp {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     transform: translateY(20px);
   }
-  to { 
-    opacity: 1; 
+
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -170,12 +212,12 @@ const handleLogin = async () => {
 .form-item label {
   display: block;
   margin-bottom: 8px;
-  font-size: 14px;
+  font-size: 18px;
   color: #333;
 }
 
 .form-item input {
-  width: 100%;
+  width: 380px;
   height: 40px;
   padding: 0 15px;
   border: 1px solid #d9d9d9;
@@ -190,17 +232,29 @@ const handleLogin = async () => {
 }
 
 .login-btn {
-  width: 100%;
+  width: 250px;
   height: 40px;
   background-color: #1890ff;
   color: white;
-  border: none;
+  border: none; 
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+}
+
+.register-btn {
+  position: relative;
+  bottom:60px;
+  left: 450px;
+}
+.find-btn{
+  padding: 0;
+  position: relative; 
+   left: 450px;
+   bottom: 50px;
 }
 
 .login-btn::before {
