@@ -34,7 +34,7 @@ export const useUserStore = defineStore('user', {
     currentUser: null as User | null,
   }),
   actions: {
-    login(username: string, password: string) {
+    login(username: string, password: string) {   
       // In a real app, this would be an API call
       if (username === 'doctor' && password === 'password') {
         const user = {

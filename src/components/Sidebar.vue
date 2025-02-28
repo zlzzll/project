@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
 const router = useRouter();
 const userStore = useUserStore();
-const activeIndex = ref('1');
 
 const navigateTo = (path: string) => {
   router.push(path);
@@ -29,7 +27,7 @@ const logout = () => {
           alt="User Avatar" class="icon" />
       </div>
       <p></p>
-      <div>
+      <div style="width: 100px;">
        {{ userStore.currentUser?.name }}
       </div>
     </div>
@@ -139,6 +137,7 @@ const logout = () => {
 .user-express{
   width: 86px;
   height: 108px;
+  font-size: 13px;
   /* display: flex; */
   position: relative;
   left: 70px;
