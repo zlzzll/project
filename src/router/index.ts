@@ -6,6 +6,7 @@ import PatientDetail from '../views/PatientDetail.vue';
 import MedicalRecord from '../views/MedicalRecord.vue';
 import NewRecord from '../views/NewRecord.vue';
 import Register from '../views/Register.vue';
+import Setting from '../views/Setting.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -46,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/setting',
+    name: 'Setting',
+    component: Setting
   }
 ];
 
@@ -55,7 +61,7 @@ const router = createRouter({
 });
 
 // Navigation guard for authentication
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const isAuthenticated = localStorage.getItem('user');
   
   if (to.name !== 'Login' && !isAuthenticated) {

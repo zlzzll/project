@@ -22,6 +22,19 @@ const logout = () => {
     <div class="logo">
       <h2>电子病历系统</h2>
     </div>
+
+    <div class="user-express">
+      <div class="main-avatar">
+        <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
+          alt="User Avatar" class="icon" />
+      </div>
+      <p></p>
+      <div>
+       {{ userStore.currentUser?.name }}
+      </div>
+    </div>
+
+
     <div class="menu">
       <div class="menu-item" @click="navigateTo('/dashboard')" :class="{ active: $route.path === '/dashboard' }">
         <i class="el-icon-s-home"></i>
@@ -35,10 +48,15 @@ const logout = () => {
         <i class="el-icon-document-add"></i>
         <span>新建病历</span>
       </div>
+      <div class="menu-item" @click="navigateTo('/setting')" :class="{ active: $route.path === '/setting' }">
+        <i class="el-icon-document-add"></i>
+        <span>设置</span>
+      </div>
     </div>
     <div class="user-info">
       <div class="avatar">
-        <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain" alt="User Avatar" />
+        <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
+          alt="User Avatar" />
       </div>
       <div class="user-details">
         <div class="user-name">{{ userStore.currentUser?.name }}</div>
@@ -118,6 +136,14 @@ const logout = () => {
   transform: scale(1.2);
 }
 
+.user-express{
+  width: 86px;
+  height: 108px;
+  /* display: flex; */
+  position: relative;
+  left: 70px;
+}
+
 .user-info {
   height: 80px;
   border-top: 1px solid #1f2d3d;
@@ -125,6 +151,21 @@ const logout = () => {
   align-items: center;
   padding: 0 20px;
   background-color: #263445;
+}
+
+.main-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+.icon{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .avatar {
