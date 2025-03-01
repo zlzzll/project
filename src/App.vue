@@ -2,7 +2,9 @@
 import { useRouter } from 'vue-router';
 import { useUserStore } from './store';
 
+// 路由器实例
 const router = useRouter();
+// 用户存储
 const userStore = useUserStore();
 </script>
 
@@ -33,7 +35,7 @@ body {
   overflow: hidden;
 }
 
-/* Transitions */
+/* 过渡效果 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -44,7 +46,7 @@ body {
   opacity: 0;
 }
 
-/* Scrollbar styling */
+/* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

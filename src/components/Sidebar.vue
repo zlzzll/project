@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
+// 路由器实例
 const router = useRouter();
+// 用户存储
 const userStore = useUserStore();
+// 活动菜单项索引
+const activeIndex = ref('1');
 
+// 导航到指定路径
 const navigateTo = (path: string) => {
   router.push(path);
 };
 
+// 登出
 const logout = () => {
   userStore.logout();
   router.push('/login');
@@ -64,7 +71,8 @@ const logout = () => {
         <i class="el-icon-switch-button">X</i>
       </div>
     </div>
-  </div>
+   </div>
+ 
 </template>
 
 <style scoped>

@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
 
+// 用户接口
 interface User {
   id: string;
   name: string;
   role: string;
 }
 
+// 患者接口
 interface Patient {
   id: string;
   name: string;
@@ -17,6 +19,7 @@ interface Patient {
   medicalHistory: string[];
 }
 
+// 医疗记录接口
 interface MedicalRecord {
   id: string;
   patientId: string;
@@ -29,13 +32,15 @@ interface MedicalRecord {
   doctorName: string;
 }
 
+// 用户存储
 export const useUserStore = defineStore('user', {
   state: () => ({
     currentUser: null as User | null,
   }),
   actions: {
-    login(username: string, password: string) {   
-      // In a real app, this would be an API call
+    // 登录
+    login(username: string, password: string) {
+      // 在真实应用中，这将是一个API调用
       if (username === 'doctor' && password === 'password') {
         const user = {
           id: '1',
@@ -48,10 +53,12 @@ export const useUserStore = defineStore('user', {
       }
       return false;
     },
+    // 登出
     logout() {
       this.currentUser = null;
       localStorage.removeItem('user');
     },
+    // 初始化用户
     initUser() {
       const userStr = localStorage.getItem('user');
       if (userStr) {
@@ -61,6 +68,7 @@ export const useUserStore = defineStore('user', {
   }
 });
 
+// 患者存储
 export const usePatientStore = defineStore('patient', {
   state: () => ({
     patients: [
@@ -132,20 +140,25 @@ export const usePatientStore = defineStore('patient', {
     ] as MedicalRecord[]
   }),
   getters: {
+    // 根据ID获取患者
     getPatientById: (state) => (id: string) => {
       return state.patients.find(patient => patient.id === id);
     },
+    // 根据患者ID获取记录
     getRecordsByPatientId: (state) => (patientId: string) => {
       return state.medicalRecords.filter(record => record.patientId === patientId);
     },
+    // 根据ID获取记录
     getRecordById: (state) => (id: string) => {
       return state.medicalRecords.find(record => record.id === id);
     }
   },
   actions: {
+    // 添加患者
     addPatient(patient: Patient) {
       this.patients.push(patient);
     },
+    // 添加医疗记录
     addMedicalRecord(record: MedicalRecord) {
       this.medicalRecords.push(record);
     }

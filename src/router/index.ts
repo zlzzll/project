@@ -7,6 +7,7 @@ import MedicalRecord from '../views/MedicalRecord.vue';
 import NewRecord from '../views/NewRecord.vue';
 import Register from '../views/Register.vue';
 import Setting from '../views/Setting.vue';
+import ForgotPassword from '../views/ForgotPassword.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -52,6 +53,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/setting',
     name: 'Setting',
     component: Setting
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
   }
 ];
 
@@ -60,11 +66,14 @@ const router = createRouter({
   routes
 });
 
-// Navigation guard for authentication
+// 导航守卫用于身份验证
 router.beforeEach((to, _from, next) => {
   const isAuthenticated = localStorage.getItem('user');
   
-  if (to.name !== 'Login' && !isAuthenticated) {
+  // 不需要身份验证的路由
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword'];
+  
+  if (!publicRoutes.includes(to.name as string) && !isAuthenticated) {
     next({ name: 'Login' });
   } else {
     next();

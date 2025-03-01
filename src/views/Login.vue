@@ -4,13 +4,17 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 import { ElMessage } from 'element-plus';
 
+// 路由器实例
 const router = useRouter();
+// 用户存储
 const userStore = useUserStore();
 
+// 表单数据
 const username = ref('');
 const password = ref('');
 const loading = ref(false);
 
+// 处理登录
 const handleLogin = async () => {
   if (!username.value || !password.value) {
     ElMessage.warning('请输入用户名和密码');
@@ -33,8 +37,14 @@ const handleLogin = async () => {
   }
 };
 
+// 跳转到注册页面
 const handleRegister = () => {
   router.push('/register');
+};
+
+// 跳转到找回密码页面
+const handleForgotPassword = () => {
+  router.push('/forgot-password');
 };
 </script>
 
@@ -65,12 +75,12 @@ const handleRegister = () => {
 
         <div class="register-btn">
           <button @click="handleRegister" style="width: 80px; height: 35px; font-size: 12px;" >
-          <span class="btn-text"  >注册</span>
+          <span class="btn-text">注册</span>
         </button>
         </div>
 
         <div class="find-btn">
-          <button style="width:80px; height: 35px;font-size: 12px;">
+          <button @click="handleForgotPassword" style="width:80px; height: 35px;font-size: 12px;">
             <span class="btn-text">找回密码</span>
           </button>
         </div>
