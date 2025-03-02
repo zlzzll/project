@@ -2,23 +2,26 @@
 import { useRouter } from 'vue-router';
 import { useUserStore } from './store';
 import Sidebar from './components/Sidebar.vue';
+import { ref } from 'vue';
 
 // 路由器实例
 const router = useRouter();
 // 用户存储
-const userStore = useUserStore();
+// const userStore = useUserStore();
 
 // 判断当前路由是否需要显示侧边栏
 const shouldShowSidebar = () => {
   const publicRoutes = ['Login', 'Register', 'ForgotPassword'];
   return !publicRoutes.includes(router.currentRoute.value.name as string);
 };
+const shouldShow = ref(true);
 </script>
 
 <template>
   <div class="app-container">
     <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
-    <Sidebar v-if="shouldShowSidebar()" />
+    <Sidebar v-if="shouldShowSidebar() && shouldShow" />
+    <button @click="()=>shouldShow=!shouldShow" style="height: 100px; width: 30px;">{{ shouldShow == true ? "<" :">" }}</button>
     
     <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
       <router-view v-slot="{ Component }">
@@ -40,7 +43,9 @@ body {
   height: 100%;
   overflow: hidden;
 }
-
+button:focus {
+    outline: none;
+}
 .app-container {
   width: 100%;
   height: 100vh;

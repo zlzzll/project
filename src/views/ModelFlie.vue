@@ -30,7 +30,7 @@ export default defineComponent({
         const inpval = ref();
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
-        const inpvals = ref();
+        const inpvals = ref('');
 
         const paginatedTemplates = computed(() => {
             const start = (currentPage.value - 1) * pageSize;
@@ -103,7 +103,7 @@ export default defineComponent({
             // 先清空
             inpval.value = ''
             if (currentPage.value > 1) {
-                currentPage.value--
+                currentPage.value--                                                             
                 if (currentPage.value % 4 == 0) {
                     showPage.value = showPage.value - 4
                 }
@@ -121,12 +121,15 @@ export default defineComponent({
         }
 
         function gotoPage(){
+            if (inpvals.value == '') {
+                return
+            }
             inpval.value = inpvals.value
             // 先清空输入框
             inpvals.value = ''
            
             // 输入判断
-            if (inpval.value <= 0 || inpval.value > totalPages.value) {
+            if (inpval.value <= 0 || inpval.value > totalPages.value ) {
                 return
             }
             currentPage.value = inpval.value

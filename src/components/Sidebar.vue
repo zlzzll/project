@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
@@ -8,7 +7,6 @@ const router = useRouter();
 // 用户存储
 const userStore = useUserStore();
 // 活动菜单项索引
-const activeIndex = ref('1');
 
 // 导航到指定路径
 const navigateTo = (path: string) => {
@@ -25,6 +23,8 @@ const logout = () => {
   userStore.logout();
   router.push('/login');
 };
+
+
 </script>
 
 <template>
