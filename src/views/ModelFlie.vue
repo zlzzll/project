@@ -239,10 +239,10 @@ export default defineComponent({
                         <td>{{ template.createdBy }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
                         <td style="width: 100px;">{{ template.modifyDatetime.split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
-                            </div>
+                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
+                            </span>
                         </td>
-                        <div>
+                        <td style=" width: 50px;height: 50px; position: relative; bottom: 10px;">
                             <button style="align-items: center; position: relative;top: 10px;">
                                 <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
@@ -251,7 +251,7 @@ export default defineComponent({
                                         fill="#1296db" p-id="4150"></path>
                                 </svg>
                             </button>
-                        </div>
+                        </td>
                         <td style="padding: 0%; width: 50px; ">
                             <button>
                                 <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
