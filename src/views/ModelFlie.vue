@@ -27,7 +27,10 @@ export default defineComponent({
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
-        const inpval = ref(1);
+        const inpval = ref();
+        // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
+        // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
+        const inpvals = ref();
 
         const paginatedTemplates = computed(() => {
             const start = (currentPage.value - 1) * pageSize;
@@ -97,6 +100,8 @@ export default defineComponent({
         }
 
         function prevPage() {
+            // 先清空
+            inpval.value = ''
             if (currentPage.value > 1) {
                 currentPage.value--
                 if (currentPage.value % 4 == 0) {
@@ -105,6 +110,8 @@ export default defineComponent({
             }
         }
         function nextPage() {
+            // 先清空
+            inpval.value = ''
             if (currentPage.value < totalPages.value) {
                 currentPage.value++
                 if (currentPage.value >= showPage.value + 4) {
@@ -114,10 +121,17 @@ export default defineComponent({
         }
 
         function gotoPage(){
+            inpval.value = inpvals.value
+            // 先清空输入框
+            inpvals.value = ''
+           
+            // 输入判断
             if (inpval.value <= 0 || inpval.value > totalPages.value) {
                 return
             }
             currentPage.value = inpval.value
+
+            // 在currentPage更新之后，立即要想到更新showPage变量
             if (inpval.value < showPage.value) {
                 showPage.value =(Math.trunc(inpval.value / 4)-1)*4+1
             }
@@ -130,7 +144,7 @@ export default defineComponent({
             paginatedTemplates,
             currentPage,
             showPage,
-            inpval,
+            inpval,inpvals,
             totalPages,
             gotoPage,
             applyFilters,
@@ -264,17 +278,17 @@ export default defineComponent({
 
         <div class="pagination" v-if="totalPages > 0">
             <button  :disabled="currentPage === 1" @click="prevPage" ><</button>
-            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
+            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage}">{{ showPage }}</button>
             <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
-                :class="{ active: currentPage === showPage + 1 || inpval == showPage + 1 }">{{ showPage + 1 }}</button>
+                :class="{ active: currentPage === showPage + 1 || inpval == showPage+1}">{{ showPage + 1 }}</button>
             <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
-                :class="{ active: currentPage === showPage + 2 || inpval == showPage + 2 }">{{ showPage + 2 }}</button>
+                :class="{ active: currentPage === showPage + 2 || inpval == showPage+2}">{{ showPage + 2 }}</button>
             <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
-                :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3 }}</button>
+                :class="{ active: currentPage === showPage + 3 || inpval == showPage+3}">{{ showPage + 3 }}</button>
             <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
             <button  :disabled="currentPage === totalPages" @click="nextPage">></button>
             <div> 
-              <input type="text" style="width: 60px; " v-model="inpval"> <button @click="gotoPage">Go</button>
+              <input type="text" style="width: 60px; " v-model="inpvals"> <button @click="gotoPage">Go</button>
             </div>
         </div>
     </div>
