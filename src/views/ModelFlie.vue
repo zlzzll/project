@@ -132,12 +132,22 @@ export default defineComponent({
                 <div class="filter-item">
                     <label>修改日期:</label>
                     <input type="date" v-model="filters.modifyDate">
-                </div>  
+                </div>
 
             </div>
             <div class="filter-actions">
                 <button class="btn query" @click="applyFilters">查询</button>
-                <button class="btn reset" @click="resetFilters">重置</button>
+                <button class="btn reset" @click="resetFilters">
+                    <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
+                        <path
+                            d="M130 562.5c0-19.33 15.67-35 35-35s35 15.67 35 35C200 735.089 339.911 875 512.5 875S825 735.089 825 562.5 685.089 250 512.5 250c-19.33 0-35-15.67-35-35s15.67-35 35-35C723.749 180 895 351.251 895 562.5S723.749 945 512.5 945 130 773.749 130 562.5z"
+                            fill="#2F54EB" p-id="1472"></path>
+                        <path
+                            d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
+                            fill="#2F54EB" p-id="1473"></path>
+                    </svg>
+                    重置</button>
             </div>
         </div>
 
@@ -150,7 +160,7 @@ export default defineComponent({
                         <th>作者</th>
                         <th>分类</th>
                         <th>修改时间</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -162,10 +172,25 @@ export default defineComponent({
                         <td>{{ template.name }}</td>
                         <td>{{ template.createdBy }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
-                        <td>{{ template.modifyDatetime.split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]}} AM</div>
+                        <td style="width: 100px;">{{ template.modifyDatetime.split(" ")[0] }}
+                            <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
+                            </div>
                         </td>
-                        <button style="color: blue;">></button>
+                        <div>
+                            <button style="align-items: center; position: relative;top: 10px;">
+                                <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
+                                    <path
+                                        d="M584.533333 512l-302.933333 302.933333L341.333333 874.666667l302.933334-302.933334 59.733333-59.733333-59.733333-59.733333L341.333333 145.066667 281.6 209.066667l302.933333 302.933333z"
+                                        fill="#1296db" p-id="4150"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <td style="padding: 0%; width: 50px; ">
+                            <button>
+                                <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200"><path d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12392" fill="#8a8a8a"></path><path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12393" fill="#8a8a8a"></path><path d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12394" fill="#8a8a8a"></path><path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12395" fill="#8a8a8a"></path><path d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12396" fill="#8a8a8a"></path><path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12397" fill="#8a8a8a"></path></svg>
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -180,6 +205,13 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.icon {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+
+}
+
 .file-management {
     padding: 24px;
     max-width: 1200px;
@@ -207,7 +239,7 @@ export default defineComponent({
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .filter-item {
@@ -280,13 +312,18 @@ th {
     color: #909399;
     font-weight: 500;
     padding: 12px;
-    text-align: left;
+    text-align: center;
 }
 
 td {
-    padding: 12px;
+    width: 250px;
+    padding-bottom: 6px;
+    padding-top: 6px;
+    padding-left: 40px;
+    padding-right: 40px;
     border-top: 1px solid #ebeef5;
     color: #606266;
+    text-align: center;
 }
 
 .category-tag {
