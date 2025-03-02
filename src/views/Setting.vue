@@ -69,14 +69,15 @@ const closeFileUpload = () => {
         <h2>设置</h2>
         <div class="setting-item">
             <div class="label">头像：</div>
-            <div style="padding-right: 1104px;">
+            <div style="flex: 1;">
                 <img
                     class="setting-icon"
                     src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
                     alt="User Avatar"
                 />
-            </div>
+            </div>            
             <button class="edit-btn" @click="openFileUpload">编辑</button>
+
         </div>
 
         <!-- 设置项列表 -->
@@ -188,6 +189,7 @@ h2 {
 }
 
 .edit-btn {
+    display: flex;
     background: #f0f2f5;
     color: #1677ff;
     border: none;

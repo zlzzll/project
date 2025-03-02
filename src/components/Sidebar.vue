@@ -15,6 +15,11 @@ const navigateTo = (path: string) => {
   router.push(path);
 };
 
+// 跳转到个人信息
+const navigateToProfile = () => {
+  router.push('/setting');
+};
+
 // 登出
 const logout = () => {
   userStore.logout();
@@ -31,7 +36,9 @@ const logout = () => {
     <div class="user-express">
       <div class="main-avatar">
         <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
-          alt="User Avatar" class="icon" />
+          alt="User Avatar" class="icon"
+          @click="navigateToProfile"
+           />
       </div>
       <p></p>
       <div style="width: 100px;">
@@ -53,6 +60,17 @@ const logout = () => {
         <i class="el-icon-document-add"></i>
         <span>新建病历</span>
       </div>
+
+      <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: $route.path === '/modelfile' }">
+        <i class="el-icon-document-add"></i>
+        <span>模板管理</span>
+      </div>
+
+      <div class="menu-item" @click="navigateTo('/permissions')" :class="{ active: $route.path === '/permissions' }">
+        <i class="el-icon-document-add"></i>
+        <span>权限管理</span>
+      </div>
+
       <div class="menu-item" @click="navigateTo('/setting')" :class="{ active: $route.path === '/setting' }">
         <i class="el-icon-document-add"></i>
         <span>设置</span>
@@ -61,7 +79,9 @@ const logout = () => {
     <div class="user-info">
       <div class="avatar">
         <img src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
-          alt="User Avatar" />
+          alt="User Avatar"
+          @click="navigateToProfile"
+          />
       </div>
       <div class="user-details">
         <div class="user-name">{{ userStore.currentUser?.name }}</div>

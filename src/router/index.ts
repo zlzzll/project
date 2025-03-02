@@ -8,6 +8,9 @@ import NewRecord from '../views/NewRecord.vue';
 import Register from '../views/Register.vue';
 import Setting from '../views/Setting.vue';
 import ForgotPassword from '../views/ForgotPassword.vue';
+import PermissionManage from '../views/PermissionManage.vue';
+import ModelFlie from '../views/ModelFlie.vue';
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -58,6 +61,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/forgot-password',
     name: 'ForgotPassword',
     component: ForgotPassword
+  },
+  {
+    path:"/permissions",
+    name: 'Permissions',
+    component: PermissionManage
+  },
+  {
+    path: '/modelfile',
+    name: 'ModelFile',
+    component: ModelFlie
   }
 ];
 
