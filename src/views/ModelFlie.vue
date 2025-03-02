@@ -242,8 +242,8 @@ export default defineComponent({
                             <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
                             </span>
                         </td>
-                        <td style=" width: 50px;height: 50px; position: relative; bottom: 10px;">
-                            <button style="align-items: center; position: relative;top: 10px;">
+                        <td style=" width: 50px;height: 50px; ">
+                            <button style="align-items: center; ">
                                 <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
                                     xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
                                     <path
@@ -420,8 +420,8 @@ td {
     width: 250px;
     padding-bottom: 6px;
     padding-top: 6px;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 30px;
+    padding-right: 30px;
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
