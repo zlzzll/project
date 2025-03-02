@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePatientStore } from '../store';
-import Sidebar from '../components/Sidebar.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const router = useRouter();
@@ -86,91 +85,88 @@ const cancelAddPatient = () => {
 
 <template>
   <div class="patient-list-container">
-    <Sidebar />
-    <div class="main-content">
-      <div class="header">
-        <h1>患者管理</h1>
-        <div class="actions">
-          <div class="search-box">
-            <input type="text" v-model="searchQuery" placeholder="搜索患者姓名/身份证/电话" />
-            <i class="el-icon-search"></i>  
-          </div>
-          <button class="add-btn" @click="showAddPatientForm = true">添加患者</button>
+    <div class="header">
+      <h1>患者管理</h1>
+      <div class="actions">
+        <div class="search-box">
+          <input type="text" v-model="searchQuery" placeholder="搜索患者姓名/身份证/电话" />
+          <i class="el-icon-search"></i>  
         </div>
+        <button class="add-btn" @click="showAddPatientForm = true">添加患者</button>
       </div>
-      
-      <div class="patient-table">
-        <table>
-          <thead>
-            <tr>
-              <th>姓名</th>
-              <th>性别</th>
-              <th>年龄</th>
-              <th>身份证号</th>
-              <th>联系电话</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="patient in filteredPatients" :key="patient.id">
-              <td>{{ patient.name }}</td>
-              <td>{{ patient.gender }}</td>
-              <td>{{ patient.age }}</td>
-              <td>{{ patient.idCard }}</td>
-              <td>{{ patient.phone }}</td>
-              <td>
-                <button class="view-btn" @click="viewPatient(patient.id)">查看</button>
-              </td>
-            </tr>
-            <tr v-if="filteredPatients.length === 0">
-              <td colspan="6" class="no-data">没有找到匹配的患者</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Add Patient Form Modal -->
-      <div class="modal" v-if="showAddPatientForm">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>添加新患者</h2>
-            <button class="close-btn" @click="cancelAddPatient">&times;</button>
+    </div>
+    
+    <div class="patient-table">
+      <table>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>身份证号</th>
+            <th>联系电话</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="patient in filteredPatients" :key="patient.id">
+            <td>{{ patient.name }}</td>
+            <td>{{ patient.gender }}</td>
+            <td>{{ patient.age }}</td>
+            <td>{{ patient.idCard }}</td>
+            <td>{{ patient.phone }}</td>
+            <td>
+              <button class="view-btn" @click="viewPatient(patient.id)">查看</button>
+            </td>
+          </tr>
+          <tr v-if="filteredPatients.length === 0">
+            <td colspan="6" class="no-data">没有找到匹配的患者</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Add Patient Form Modal -->
+    <div class="modal" v-if="showAddPatientForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>添加新患者</h2>
+          <button class="close-btn" @click="cancelAddPatient">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>姓名 <span class="required">*</span></label>
+            <input type="text" v-model="newPatient.name" placeholder="请输入患者姓名" />
           </div>
-          <div class="modal-body">
+          <div class="form-row">
             <div class="form-group">
-              <label>姓名 <span class="required">*</span></label>
-              <input type="text" v-model="newPatient.name" placeholder="请输入患者姓名" />
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>性别</label>
-                <select v-model="newPatient.gender">
-                  <option value="男">男</option>
-                  <option value="女">女</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>年龄</label>
-                <input type="number" v-model="newPatient.age" placeholder="请输入年龄" />
-              </div>
+              <label>性别</label>
+              <select v-model="newPatient.gender">
+                <option value="男">男</option>
+                <option value="女">女</option>
+              </select>
             </div>
             <div class="form-group">
-              <label>身份证号 <span class="required">*</span></label>
-              <input type="text" v-model="newPatient.idCard" placeholder="请输入身份证号" />
-            </div>
-            <div class="form-group">
-              <label>联系电话 <span class="required">*</span></label>
-              <input type="text" v-model="newPatient.phone" placeholder="请输入联系电话" />
-            </div>
-            <div class="form-group">
-              <label>住址</label>
-              <input type="text" v-model="newPatient.address" placeholder="请输入住址" />
+              <label>年龄</label>
+              <input type="number" v-model="newPatient.age" placeholder="请输入年龄" />
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="cancel-btn" @click="cancelAddPatient">取消</button>
-            <button class="submit-btn" @click="addPatient">保存</button>
+          <div class="form-group">
+            <label>身份证号 <span class="required">*</span></label>
+            <input type="text" v-model="newPatient.idCard" placeholder="请输入身份证号" />
           </div>
+          <div class="form-group">
+            <label>联系电话 <span class="required">*</span></label>
+            <input type="text" v-model="newPatient.phone" placeholder="请输入联系电话" />
+          </div>
+          <div class="form-group">
+            <label>住址</label>
+            <input type="text" v-model="newPatient.address" placeholder="请输入住址" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" @click="cancelAddPatient">取消</button>
+          <button class="submit-btn" @click="addPatient">保存</button>
         </div>
       </div>
     </div>
@@ -179,14 +175,8 @@ const cancelAddPatient = () => {
 
 <style scoped>
 .patient-list-container {
-  display: flex;
-  height: 100vh;
-}
-
-.main-content {
-  flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  background-color: #f5f7fa;
 }
 
 .header {

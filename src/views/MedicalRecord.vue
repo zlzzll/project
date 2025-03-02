@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePatientStore } from '../store';
-import Sidebar from '../components/Sidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -34,82 +33,79 @@ const printRecord = () => {
 
 <template>
   <div class="medical-record-container" v-if="record && patient">
-    <Sidebar />
-    <div class="main-content">
-      <div class="header">
-        <div class="back-button" @click="router.push(`/patients/${patient.id}`)">
-          <i class="el-icon-arrow-left"></i> 返回患者详情
-        </div>
-        <h1>病历详情</h1>
-        <button class="print-btn" @click="printRecord">
-          <i class="el-icon-printer"></i> 打印
-        </button>
+    <div class="header">
+      <div class="back-button" @click="router.push(`/patients/${patient.id}`)">
+        <i class="el-icon-arrow-left"></i> 返回患者详情
+      </div>
+      <h1>病历详情</h1>
+      <button class="print-btn" @click="printRecord">
+        <i class="el-icon-printer"></i> 打印
+      </button>
+    </div>
+    
+    <div class="record-content">
+      <div class="record-header">
+        <h2>门诊病历</h2>
+        <div class="record-date">就诊日期：{{ formatDate(record.date) }}</div>
       </div>
       
-      <div class="record-content">
-        <div class="record-header">
-          <h2>门诊病历</h2>
-          <div class="record-date">就诊日期：{{ formatDate(record.date) }}</div>
-        </div>
-        
-        <div class="patient-info">
-          <div class="info-row">
-            <div class="info-item">
-              <span class="label">姓名：</span>
-              <span class="value">{{ patient.name }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">性别：</span>
-              <span class="value">{{ patient.gender }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">年龄：</span>
-              <span class="value">{{ patient.age }}岁</span>
-            </div>
+      <div class="patient-info">
+        <div class="info-row">
+          <div class="info-item">
+            <span class="label">姓名：</span>
+            <span class="value">{{ patient.name }}</span>
           </div>
-          <div class="info-row">
-            <div class="info-item">
-              <span class="label">身份证号：</span>
-              <span class="value">{{ patient.idCard }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label">联系电话：</span>
-              <span class="value">{{ patient.phone }}</span>
-            </div>
+          <div class="info-item">
+            <span class="label">性别：</span>
+            <span class="value">{{ patient.gender }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">年龄：</span>
+            <span class="value">{{ patient.age }}岁</span>
           </div>
         </div>
-        
-        <div class="record-section">
-          <h3>主诉</h3>
-          <div class="section-content">{{ record.symptoms }}</div>
-        </div>
-        
-        <div class="record-section">
-          <h3>诊断</h3>
-          <div class="section-content">{{ record.diagnosis }}</div>
-        </div>
-        
-        <div class="record-section">
-          <h3>治疗方案</h3>
-          <div class="section-content">{{ record.treatment }}</div>
-        </div>
-        
-        <div class="record-section">
-          <h3>用药</h3>
-          <div class="section-content">
-            <ul class="medication-list">
-              <li v-for="(medication, index) in record.medications" :key="index">
-                {{ medication }}
-              </li>
-            </ul>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="label">身份证号：</span>
+            <span class="value">{{ patient.idCard }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">联系电话：</span>
+            <span class="value">{{ patient.phone }}</span>
           </div>
         </div>
-        
-        <div class="record-footer">
-          <div class="doctor-info">
-            <span class="label">医生：</span>
-            <span class="value">{{ record.doctorName }}</span>
-          </div>
+      </div>
+      
+      <div class="record-section">
+        <h3>主诉</h3>
+        <div class="section-content">{{ record.symptoms }}</div>
+      </div>
+      
+      <div class="record-section">
+        <h3>诊断</h3>
+        <div class="section-content">{{ record.diagnosis }}</div>
+      </div>
+      
+      <div class="record-section">
+        <h3>治疗方案</h3>
+        <div class="section-content">{{ record.treatment }}</div>
+      </div>
+      
+      <div class="record-section">
+        <h3>用药</h3>
+        <div class="section-content">
+          <ul class="medication-list">
+            <li v-for="(medication, index) in record.medications" :key="index">
+              {{ medication }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="record-footer">
+        <div class="doctor-info">
+          <span class="label">医生：</span>
+          <span class="value">{{ record.doctorName }}</span>
         </div>
       </div>
     </div>
@@ -118,14 +114,8 @@ const printRecord = () => {
 
 <style scoped>
 .medical-record-container {
-  display: flex;
-  height: 100vh;
-}
-
-.main-content {
-  flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  background-color: #f5f7fa;
 }
 
 .header {
@@ -246,11 +236,11 @@ const printRecord = () => {
 }
 
 @media print {
-  .sidebar, .header {
+  .header {
     display: none;
   }
   
-  .main-content {
+  .medical-record-container {
     padding: 0;
   }
   

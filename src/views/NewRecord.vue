@@ -2,7 +2,6 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePatientStore, useUserStore } from '../store';
-import Sidebar from '../components/Sidebar.vue';
 import { ElMessage } from 'element-plus';
 
 const route = useRoute();
@@ -107,106 +106,103 @@ onMounted(() => {
 
 <template>
   <div class="new-record-container">
-    <Sidebar />
-    <div class="main-content">
-      <div class="header">
-        <div class="back-button" @click="cancel">
-          <i class="el-icon-arrow-left"></i> 取消
-        </div>
-        <h1>新建病历</h1>
+    <div class="header">
+      <div class="back-button" @click="cancel">
+        <i class="el-icon-arrow-left"></i> 取消
       </div>
-      
-      <!-- Patient Selection -->
-      <div class="patient-selection" v-if="!selectedPatient">
-        <div class="selection-header">
-          <h2>选择患者</h2>
-        </div>
-        <div class="patient-list">
-          <div 
-            v-for="patient in patientStore.patients" 
-            :key="patient.id" 
-            class="patient-item"
-            @click="selectPatient(patient.id)"
-          >
-            <div class="patient-name">{{ patient.name }}</div>
-            <div class="patient-info">{{ patient.gender }}, {{ patient.age }}岁</div>
-            <div class="patient-id">身份证: {{ patient.idCard }}</div>
-          </div>
+      <h1>新建病历</h1>
+    </div>
+    
+    <!-- Patient Selection -->
+    <div class="patient-selection" v-if="!selectedPatient">
+      <div class="selection-header">
+        <h2>选择患者</h2>
+      </div>
+      <div class="patient-list">
+        <div 
+          v-for="patient in patientStore.patients" 
+          :key="patient.id" 
+          class="patient-item"
+          @click="selectPatient(patient.id)"
+        >
+          <div class="patient-name">{{ patient.name }}</div>
+          <div class="patient-info">{{ patient.gender }}, {{ patient.age }}岁</div>
+          <div class="patient-id">身份证: {{ patient.idCard }}</div>
         </div>
       </div>
-      
-      <!-- Record Form -->
-      <div class="record-form" v-if="selectedPatient">
-        <div class="patient-info-bar">
-          <div class="patient-details">
-            <span class="patient-name">{{ selectedPatient.name }}</span>
-            <span class="patient-gender-age">{{ selectedPatient.gender }}, {{ selectedPatient.age }}岁</span>
-          </div>
-          <button class="change-patient-btn" @click="showPatientSelector = true" v-if="!showPatientSelector">
-            更换患者
-          </button>
+    </div>
+    
+    <!-- Record Form -->
+    <div class="record-form" v-if="selectedPatient">
+      <div class="patient-info-bar">
+        <div class="patient-details">
+          <span class="patient-name">{{ selectedPatient.name }}</span>
+          <span class="patient-gender-age">{{ selectedPatient.gender }}, {{ selectedPatient.age }}岁</span>
         </div>
-        
-        <!-- Patient Selector Modal -->
-        <div class="modal" v-if="showPatientSelector">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h2>选择患者</h2>
-              <button class="close-btn" @click="showPatientSelector = false">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="patient-list">
-                <div 
-                  v-for="patient in patientStore.patients" 
-                  :key="patient.id" 
-                  class="patient-item"
-                  @click="selectPatient(patient.id)"
-                >
-                  <div class="patient-name">{{ patient.name }}</div>
-                  <div class="patient-info">{{ patient.gender }}, {{ patient.age }}岁</div>
-                  <div class="patient-id">身份证: {{ patient.idCard }}</div>
-                </div>
+        <button class="change-patient-btn" @click="showPatientSelector = true" v-if="!showPatientSelector">
+          更换患者
+        </button>
+      </div>
+      
+      <!-- Patient Selector Modal -->
+      <div class="modal" v-if="showPatientSelector">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>选择患者</h2>
+            <button class="close-btn" @click="showPatientSelector = false">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="patient-list">
+              <div 
+                v-for="patient in patientStore.patients" 
+                :key="patient.id" 
+                class="patient-item"
+                @click="selectPatient(patient.id)"
+              >
+                <div class="patient-name">{{ patient.name }}</div>
+                <div class="patient-info">{{ patient.gender }}, {{ patient.age }}岁</div>
+                <div class="patient-id">身份证: {{ patient.idCard }}</div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      
+      <div class="form-section">
+        <div class="form-group">
+  <label>主诉 <span class="required">*</span></label>
+  <textarea v-model="recordForm.symptoms" placeholder="请输入患者主诉"></textarea>
+</div>
         
-        <div class="form-section">
-          <div class="form-group">
-            <label>主诉 <span class="required">*</span></label>
-            <textarea v-model="recordForm.symptoms" placeholder="请输入患者主诉"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>诊断 <span class="required">*</span></label>
-            <textarea v-model="recordForm.diagnosis" placeholder="请输入诊断结果"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>治疗方案</label>
-            <textarea v-model="recordForm.treatment" placeholder="请输入治疗方案"></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>用药</label>
-            <div class="medications-list">
-              <div class="medication-item" v-for="(medication, index) in recordForm.medications" :key="index">
-                <input type="text" v-model="recordForm.medications[index]" placeholder="请输入药品名称" />
-                <button class="remove-btn" @click="removeMedicationField(index)" v-if="recordForm.medications.length > 1">
-                  <i class="el-icon-delete"></i>
-                </button>
-              </div>
-              <button class="add-medication-btn" @click="addMedicationField">
-                <i class="el-icon-plus"></i> 添加药品
+        <div class="form-group">
+          <label>诊断 <span class="required">*</span></label>
+          <textarea v-model="recordForm.diagnosis" placeholder="请输入诊断结果"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>治疗方案</label>
+          <textarea v-model="recordForm.treatment" placeholder="请输入治疗方案"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>用药</label>
+          <div class="medications-list">
+            <div class="medication-item" v-for="(medication, index) in recordForm.medications" :key="index">
+              <input type="text" v-model="recordForm.medications[index]" placeholder="请输入药品名称" />
+              <button class="remove-btn" @click="removeMedicationField(index)" v-if="recordForm.medications.length > 1">
+                <i class="el-icon-delete"></i>
               </button>
             </div>
+            <button class="add-medication-btn" @click="addMedicationField">
+              <i class="el-icon-plus"></i> 添加药品
+            </button>
           </div>
         </div>
-        
-        <div class="form-actions">
-          <button class="cancel-btn" @click="cancel">取消</button>
-          <button class="save-btn" @click="saveRecord">保存病历</button>
-        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button class="cancel-btn" @click="cancel">取消</button>
+        <button class="save-btn" @click="saveRecord">保存病历</button>
       </div>
     </div>
   </div>
@@ -214,14 +210,8 @@ onMounted(() => {
 
 <style scoped>
 .new-record-container {
-  display: flex;
-  height: 100vh;
-}
-
-.main-content {
-  flex: 1;
   padding: 20px;
-  overflow-y: auto;
+  background-color: #f5f7fa;
 }
 
 .header {

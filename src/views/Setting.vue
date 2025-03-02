@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Sidebar from '../components/Sidebar.vue';
 import { ref } from 'vue';
 
 interface EditData {
@@ -66,84 +65,81 @@ const closeFileUpload = () => {
 </script>
 
 <template>
-    <div class="main-container">
-        <Sidebar />
-        <div class="settings-container">
-            <h2>设置</h2>
-            <div class="setting-item">
-                <div class="label">头像：</div>
-                <div style="padding-right: 1104px;">
-                    <img
-                        class="setting-icon"
-                        src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
-                        alt="User Avatar"
-                    />
-                </div>
-                <button class="edit-btn" @click="openFileUpload">编辑</button>
+    <div class="settings-container">
+        <h2>设置</h2>
+        <div class="setting-item">
+            <div class="label">头像：</div>
+            <div style="padding-right: 1104px;">
+                <img
+                    class="setting-icon"
+                    src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
+                    alt="User Avatar"
+                />
             </div>
+            <button class="edit-btn" @click="openFileUpload">编辑</button>
+        </div>
 
-            <!-- 设置项列表 -->
-            <div class="setting-item">
-                <div class="label">用户名：</div>
-                <div class="value">{{ userInfo.username }}</div>
-                <button class="edit-btn" @click="openEditor('username', userInfo.username)">编辑</button>
-            </div>
+        <!-- 设置项列表 -->
+        <div class="setting-item">
+            <div class="label">用户名：</div>
+            <div class="value">{{ userInfo.username }}</div>
+            <button class="edit-btn" @click="openEditor('username', userInfo.username)">编辑</button>
+        </div>
 
-            <div class="setting-item">
-                <div class="label">所属组织：</div>
-                <div class="value">{{ userInfo.organization }}</div>
-                <button class="edit-btn" @click="openEditor('organization', userInfo.organization)">编辑</button>
-            </div>
+        <div class="setting-item">
+            <div class="label">所属组织：</div>
+            <div class="value">{{ userInfo.organization }}</div>
+            <button class="edit-btn" @click="openEditor('organization', userInfo.organization)">编辑</button>
+        </div>
 
-            <div class="setting-item">
-                <div class="label">邮箱：</div>
-                <div class="value">{{ userInfo.email }}</div>
-                <button class="edit-btn" @click="openEditor('email', userInfo.email)">编辑</button>
-            </div>
+        <div class="setting-item">
+            <div class="label">邮箱：</div>
+            <div class="value">{{ userInfo.email }}</div>
+            <button class="edit-btn" @click="openEditor('email', userInfo.email)">编辑</button>
+        </div>
 
-            <div class="setting-save">
-                <button class="save-btn" @click="saveEdit">保存</button>
-            </div>
+        <div class="setting-save">
+            <button class="save-btn" @click="saveEdit">保存</button>
+        </div>
 
-            <!-- 权限管理模块 -->
-            <div class="permission-section">
-                <h3>权限管理</h3>
-                <button class="permission-btn">管理权限</button>
-            </div>
+        <!-- 权限管理模块 -->
+        <div class="permission-section">
+            <h3>权限管理</h3>
+            <button class="permission-btn">管理权限</button>
+        </div>
 
-            <!-- 编辑弹窗 -->
-            <div v-if="showDialog" class="edit-dialog-mask">
-                <div class="edit-dialog">
-                    <h3>
-                        {{
-                            editData.field === 'username'
-                                ? '编辑用户名'
-                                : editData.field === 'organization'
-                                ? '编辑所属组织'
-                                : '编辑邮箱'
-                        }}
-                    </h3>
-                    <input
-                        v-model="tempValue"
-                        class="edit-input"
-                        :type="editData.field === 'email' ? 'email' : 'text'"
-                    />
-                    <div class="dialog-buttons">
-                        <button class="cancel-btn" @click="showDialog = false">取消</button>
-                        <button class="confirm-btn" @click="saveEdit">保存</button>
-                    </div>
+        <!-- 编辑弹窗 -->
+        <div v-if="showDialog" class="edit-dialog-mask">
+            <div class="edit-dialog">
+                <h3>
+                    {{
+                        editData.field === 'username'
+                            ? '编辑用户名'
+                            : editData.field === 'organization'
+                            ? '编辑所属组织'
+                            : '编辑邮箱'
+                    }}
+                </h3>
+                <input
+                    v-model="tempValue"
+                    class="edit-input"
+                    :type="editData.field === 'email' ? 'email' : 'text'"
+                />
+                <div class="dialog-buttons">
+                    <button class="cancel-btn" @click="showDialog = false">取消</button>
+                    <button class="confirm-btn" @click="saveEdit">保存</button>
                 </div>
             </div>
+        </div>
 
-            <!-- 文件上传窗口 -->
-            <div v-if="fileLoading" class="edit-dialog-mask">
-                <div class="edit-dialog">
-                    <h3>编辑头像</h3>
-                    <input type="file" class="file-input" @change="handleFileChange" />
-                    <div class="dialog-buttons">
-                        <button class="cancel-btn" @click="closeFileUpload">取消</button>
-                        <button class="confirm-btn" @click="closeFileUpload">完成</button>
-                    </div>
+        <!-- 文件上传窗口 -->
+        <div v-if="fileLoading" class="edit-dialog-mask">
+            <div class="edit-dialog">
+                <h3>编辑头像</h3>
+                <input type="file" class="file-input" @change="handleFileChange" />
+                <div class="dialog-buttons">
+                    <button class="cancel-btn" @click="closeFileUpload">取消</button>
+                    <button class="confirm-btn" @click="closeFileUpload">完成</button>
                 </div>
             </div>
         </div>
@@ -151,13 +147,7 @@ const closeFileUpload = () => {
 </template>
 
 <style scoped>
-.main-container {
-    display: flex;
-    min-height: 100vh;
-}
-
 .settings-container {
-    flex: 1;
     padding: 32px;
     background-color: #f5f6f7;
 }

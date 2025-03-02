@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePatientStore, useUserStore } from '../store';
-import Sidebar from '../components/Sidebar.vue';
 
 const router = useRouter();
 const patientStore = usePatientStore();
@@ -23,84 +22,81 @@ const navigateToRecord = (id: string) => {
 
 <template>
   <div class="dashboard-container">
-    <Sidebar />
-    <div class="main-content">
-      <div class="header">
-        <h1>欢迎，{{ userStore.currentUser?.name }}</h1>
-        <p>今天是 {{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
-      </div>
-      
-      <div class="stats-cards">
-        <div class="stat-card">
-          <div class="stat-icon patients-icon">
-            <i class="el-icon-user"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ patientStore.patients.length }}</div>
-            <div class="stat-label">患者总数</div>
-          </div>
+    <div class="header">
+      <h1>欢迎，{{ userStore.currentUser?.name }}</h1>
+      <p>今天是 {{ new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+    </div>
+    
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon patients-icon">
+          <i class="el-icon-user"></i>
         </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon records-icon">
-            <i class="el-icon-document"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">{{ patientStore.medicalRecords.length }}</div>
-            <div class="stat-label">病历总数</div>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon today-icon">
-            <i class="el-icon-date"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">2</div>
-            <div class="stat-label">今日新增</div>
-          </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ patientStore.patients.length }}</div>
+          <div class="stat-label">患者总数</div>
         </div>
       </div>
       
-      <div class="recent-section">
-        <h2>最近病历</h2>
-        <div class="recent-records">
-          <table>
-            <thead>
-              <tr>
-                <th>日期</th>
-                <th>患者姓名</th>
-                <th>诊断</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="record in recentRecords" :key="record.id" class="record-row">
-                <td>{{ record.date }}</td>
-                <td>{{ patientStore.getPatientById(record.patientId)?.name }}</td>
-                <td>{{ record.diagnosis }}</td>
-                <td>
-                  <button class="view-btn" @click="navigateToRecord(record.id)">查看</button>
-                  <button class="patient-btn" @click="navigateToPatient(record.patientId)">患者信息</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="stat-card">
+        <div class="stat-icon records-icon">
+          <i class="el-icon-document"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ patientStore.medicalRecords.length }}</div>
+          <div class="stat-label">病历总数</div>
         </div>
       </div>
       
-      <div class="quick-actions">
-        <h2>快捷操作</h2>
-        <div class="action-buttons">
-          <button class="action-btn" @click="router.push('/patients')">
-            <i class="el-icon-user"></i>
-            <span>患者管理</span>
-          </button>
-          <button class="action-btn" @click="router.push('/new-record')">
-            <i class="el-icon-document-add"></i>
-            <span>新建病历</span>
-          </button>
+      <div class="stat-card">
+        <div class="stat-icon today-icon">
+          <i class="el-icon-date"></i>
         </div>
+        <div class="stat-info">
+          <div class="stat-value">2</div>
+          <div class="stat-label">今日新增</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="recent-section">
+      <h2>最近病历</h2>
+      <div class="recent-records">
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>患者姓名</th>
+              <th>诊断</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="record in recentRecords" :key="record.id" class="record-row">
+              <td>{{ record.date }}</td>
+              <td>{{ patientStore.getPatientById(record.patientId)?.name }}</td>
+              <td>{{ record.diagnosis }}</td>
+              <td>
+                <button class="view-btn" @click="navigateToRecord(record.id)">查看</button>
+                <button class="patient-btn" @click="navigateToPatient(record.patientId)">患者信息</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="quick-actions">
+      <h2>快捷操作</h2>
+      <div class="action-buttons">
+        <button class="action-btn" @click="router.push('/patients')">
+          <i class="el-icon-user"></i>
+          <span>患者管理</span>
+        </button>
+        <button class="action-btn" @click="router.push('/new-record')">
+          <i class="el-icon-document-add"></i>
+          <span>新建病历</span>
+        </button>
       </div>
     </div>
   </div>
@@ -108,16 +104,7 @@ const navigateToRecord = (id: string) => {
 
 <style scoped>
 .dashboard-container {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
-}
-
-.main-content {
-  flex: 1;
   padding: 20px;
-  overflow-y: auto;
   background-color: #f5f7fa;
 }
 

@@ -71,8 +71,7 @@ const logout = () => {
         <i class="el-icon-switch-button">X</i>
       </div>
     </div>
-   </div>
- 
+  </div>
 </template>
 
 <style scoped>
