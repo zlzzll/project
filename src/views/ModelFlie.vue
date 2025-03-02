@@ -25,7 +25,9 @@ export default defineComponent({
 
         const filteredTemplates = ref<TemplateFile[]>(templateFiles);
         const currentPage = ref(1);
+        const showPage = ref(1);
         const pageSize = 10;
+        const inpval = ref(1);
 
         const paginatedTemplates = computed(() => {
             const start = (currentPage.value - 1) * pageSize;
@@ -84,19 +86,64 @@ export default defineComponent({
             filteredTemplates.value = templateFiles;
             currentPage.value = 1;
         };
+        // 页面跳转脚本实现
+        function changePage(event: any) {
+            const value = event.target.innerText;
 
+            // 注意这里innerText是字符串，直接赋值会导致数据类型变化
+            currentPage.value = Number(value)
+            console.log('Clicked value:', value); // 输出: Clicked value: 1
+
+        }
+
+        function prevPage() {
+            if (currentPage.value > 1) {
+                currentPage.value--
+                if (currentPage.value % 4 == 0) {
+                    showPage.value = showPage.value - 4
+                }
+            }
+        }
+        function nextPage() {
+            if (currentPage.value < totalPages.value) {
+                currentPage.value++
+                if (currentPage.value >= showPage.value + 4) {
+                    showPage.value = currentPage.value
+                }
+            }
+        }
+
+        function gotoPage(){
+            if (inpval.value <= 0 || inpval.value > totalPages.value) {
+                return
+            }
+            currentPage.value = inpval.value
+            if (inpval.value < showPage.value) {
+                showPage.value =(Math.trunc(inpval.value / 4)-1)*4+1
+            }
+            if (inpval.value > showPage.value+3) {
+                showPage.value = Math.trunc(inpval.value / 4)*4+1
+            }
+        }
         return {
             filters,
             paginatedTemplates,
             currentPage,
+            showPage,
+            inpval,
             totalPages,
+            gotoPage,
             applyFilters,
             resetFilters,
-            prevPage: () => currentPage.value > 1 && currentPage.value--,
-            nextPage: () => currentPage.value < totalPages.value && currentPage.value++,
+            changePage,
+            prevPage,
+            nextPage,
         };
     },
 });
+
+
+
 </script>
 
 <template>
@@ -104,6 +151,8 @@ export default defineComponent({
         <header class="header">
             <h2>模板文件</h2>
             <p>现存模板如下</p>
+
+            <button style="background: #409eff;color: white;position: relative;left: 1250px;">创建文件</button>
             <hr style="width: 1350px;">
         </header>
 
@@ -188,7 +237,24 @@ export default defineComponent({
                         </div>
                         <td style="padding: 0%; width: 50px; ">
                             <button>
-                                <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200"><path d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12392" fill="#8a8a8a"></path><path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12393" fill="#8a8a8a"></path><path d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12394" fill="#8a8a8a"></path><path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12395" fill="#8a8a8a"></path><path d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z" p-id="12396" fill="#8a8a8a"></path><path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z" p-id="12397" fill="#8a8a8a"></path></svg>
+                                <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
+                                    <path
+                                        d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                        p-id="12392" fill="#8a8a8a"></path>
+                                    <path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                        p-id="12393" fill="#8a8a8a"></path>
+                                    <path
+                                        d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                        p-id="12394" fill="#8a8a8a"></path>
+                                    <path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                        p-id="12395" fill="#8a8a8a"></path>
+                                    <path
+                                        d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                        p-id="12396" fill="#8a8a8a"></path>
+                                    <path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                        p-id="12397" fill="#8a8a8a"></path>
+                                </svg>
                             </button>
                         </td>
                     </tr>
@@ -197,14 +263,32 @@ export default defineComponent({
         </div>
 
         <div class="pagination" v-if="totalPages > 0">
-            <button class="btn" :disabled="currentPage === 1" @click="prevPage">上一页</button>
-            <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-            <button class="btn" :disabled="currentPage === totalPages" @click="nextPage">下一页</button>
+            <button  :disabled="currentPage === 1" @click="prevPage" ><</button>
+            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
+            <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
+                :class="{ active: currentPage === showPage + 1 || inpval == showPage + 1 }">{{ showPage + 1 }}</button>
+            <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
+                :class="{ active: currentPage === showPage + 2 || inpval == showPage + 2 }">{{ showPage + 2 }}</button>
+            <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
+                :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3 }}</button>
+            <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
+            <button  :disabled="currentPage === totalPages" @click="nextPage">></button>
+            <div> 
+              <input type="text" style="width: 60px; " v-model="inpval"> <button @click="gotoPage">Go</button>
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+/* 添加一个简单的 active 状态样式 */
+button.active {
+    background-color: #6eb9fb;
+    /* 绿色背景 */
+    color: white;
+    /* 白色文字 */
+}
+
 .icon {
     width: 20px;
     height: 20px;
