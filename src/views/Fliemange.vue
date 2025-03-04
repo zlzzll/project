@@ -139,6 +139,12 @@ export default defineComponent({
             console.log('下载文件:', id);
             showActionMenu.value = null;
         };
+
+        // 重命名文件
+        const renameFile = (id: number) => {
+            console.log('重命名文件:', id);
+            showActionMenu.value = null;
+        };
         
         // 页面跳转脚本实现
         function changePage(event: any) {
@@ -194,7 +200,7 @@ export default defineComponent({
             }
         }
         return {
-            filters,
+            filters,  
             paginatedTemplates,
             currentPage,
             showPage,
@@ -206,6 +212,7 @@ export default defineComponent({
             viewFileDetails,
             deleteFile,
             downloadFile,
+            renameFile,
             gotoPage,
             applyFilters,
             resetFilters,
@@ -308,6 +315,10 @@ export default defineComponent({
                                 <div class="action-item" @click="downloadFile(template.id)">
                                     <i class="download-icon"></i>
                                     <span>下载</span>
+                                </div>
+                                <div class="action-item delete" @click="renameFile(template.id)">
+                                    <i class="delete-icon"></i>
+                                    <span>重命名</span>
                                 </div>
                                 <div class="action-item delete" @click="deleteFile(template.id)">
                                     <i class="delete-icon"></i>

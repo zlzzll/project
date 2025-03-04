@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useUserStore } from './store';
+// import { useUserStore } from './store';
 import Sidebar from './components/Sidebar.vue';
 import { ref } from 'vue';
 
@@ -21,7 +21,7 @@ const shouldShow = ref(true);
   <div class="app-container">
     <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
     <Sidebar v-if="shouldShowSidebar() && shouldShow" />
-    <button @click="()=>shouldShow=!shouldShow" style="height: 100px; width: 30px;">{{ shouldShow == true ? "<" :">" }}</button>
+    <button @click="()=>shouldShow=!shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{ shouldShow == true ? "<" :">" }}</button>
     
     <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
       <router-view v-slot="{ Component }">
