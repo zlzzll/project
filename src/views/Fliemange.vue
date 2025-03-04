@@ -31,12 +31,12 @@ export default defineComponent({
             const queryName = route.query.name as string;
             const queryAuthor = route.query.author as string;
             const queryCategory = route.query.category as string;
-            
+
             if (queryId) filters.value.id = queryId;
             if (queryName) filters.value.templateName = queryName;
             if (queryAuthor) filters.value.author = queryAuthor;
             if (queryCategory) filters.value.category = queryCategory;
-            
+
             // 如果有任何筛选条件，立即应用
             if (queryId || queryName || queryAuthor || queryCategory) {
                 applyFilters();
@@ -51,7 +51,7 @@ export default defineComponent({
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
         const inpvals = ref('');
-        
+
         // 控制操作下拉菜单的显示
         const showActionMenu = ref<number | null>(null);
 
@@ -112,7 +112,7 @@ export default defineComponent({
             filteredTemplates.value = templateFiles;
             currentPage.value = 1;
         };
-        
+
         // 切换操作菜单的显示状态
         const toggleActionMenu = (id: number) => {
             if (showActionMenu.value === id) {
@@ -121,19 +121,19 @@ export default defineComponent({
                 showActionMenu.value = id;
             }
         };
-        
+
         // 查看文件详情
         const viewFileDetails = (id: number) => {
             console.log('查看文件详情:', id);
             showActionMenu.value = null;
         };
-        
+
         // 删除文件
         const deleteFile = (id: number) => {
             console.log('删除文件:', id);
             showActionMenu.value = null;
         };
-        
+
         // 下载文件
         const downloadFile = (id: number) => {
             console.log('下载文件:', id);
@@ -145,7 +145,7 @@ export default defineComponent({
             console.log('重命名文件:', id);
             showActionMenu.value = null;
         };
-        
+
         // 页面跳转脚本实现
         function changePage(event: any) {
             const value = event.target.innerText;
@@ -160,7 +160,7 @@ export default defineComponent({
             // 先清空
             inpval.value = ''
             if (currentPage.value > 1) {
-                currentPage.value--                                                             
+                currentPage.value--
                 if (currentPage.value % 4 == 0) {
                     showPage.value = showPage.value - 4
                 }
@@ -177,30 +177,30 @@ export default defineComponent({
             }
         }
 
-        function gotoPage(){
+        function gotoPage() {
             if (inpvals.value == '') {
                 return
             }
             inpval.value = inpvals.value
             // 先清空输入框
             inpvals.value = ''
-           
+
             // 输入判断
-            if (inpval.value <= 0 || inpval.value > totalPages.value ) {
+            if (inpval.value <= 0 || inpval.value > totalPages.value) {
                 return
             }
             currentPage.value = inpval.value
 
             // 在currentPage更新之后，立即要想到更新showPage变量
             if (inpval.value < showPage.value) {
-                showPage.value =(Math.trunc(inpval.value / 4)-1)*4+1
+                showPage.value = (Math.trunc(inpval.value / 4) - 1) * 4 + 1
             }
-            if (inpval.value > showPage.value+3) {
-                showPage.value = Math.trunc(inpval.value / 4)*4+1
+            if (inpval.value > showPage.value + 3) {
+                showPage.value = Math.trunc(inpval.value / 4) * 4 + 1
             }
         }
         return {
-            filters,  
+            filters,
             paginatedTemplates,
             currentPage,
             showPage,
@@ -287,7 +287,7 @@ export default defineComponent({
                         <th>作者</th>
                         <th>分类</th>
                         <th>修改时间</th>
-                        <th>操作</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -300,29 +300,32 @@ export default defineComponent({
                         <td>{{ template.createdBy }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
                         <td>{{ template.modifyDatetime.split(" ")[0] }}
-                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }}</span>
+                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
+                                }}</span>
                         </td>
                         <td class="action-cell">
-                            <button class="action-btn" @click="toggleActionMenu(template.id)">
-                                <span>详情</span>
-                                <i class="dropdown-icon">▼</i>
-                            </button>
-                            <div class="action-menu" v-if="showActionMenu === template.id">
-                                <div class="action-item" @click="viewFileDetails(template.id)">
-                                    <i class="view-icon"></i>
-                                    <span>查看</span>
-                                </div>
-                                <div class="action-item" @click="downloadFile(template.id)">
-                                    <i class="download-icon"></i>
-                                    <span>下载</span>
-                                </div>
-                                <div class="action-item delete" @click="renameFile(template.id)">
-                                    <i class="delete-icon"></i>
-                                    <span>重命名</span>
-                                </div>
-                                <div class="action-item delete" @click="deleteFile(template.id)">
-                                    <i class="delete-icon"></i>
-                                    <span>删除</span>
+                            <div class="act">
+                                <button class="action-btn" @click="toggleActionMenu(template.id)">
+                                  
+                                    <i class="dropdown-icon">▼</i>
+                                </button>
+                                <div class="action-menu" v-if="showActionMenu === template.id">
+                                    <div class="action-item" @click="viewFileDetails(template.id)">
+                                        <i class="view-icon"></i>
+                                        <span>查看</span>
+                                    </div>
+                                    <div class="action-item" @click="downloadFile(template.id)">
+                                        <i class="download-icon"></i>
+                                        <span>下载</span>
+                                    </div>
+                                    <div class="action-item delete" @click="renameFile(template.id)">
+                                        <i class="delete-icon"></i>
+                                        <span>重命名</span>
+                                    </div>
+                                    <div class="action-item delete" @click="deleteFile(template.id)">
+                                        <i class="delete-icon"></i>
+                                        <span>删除</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -333,13 +336,14 @@ export default defineComponent({
 
         <div class="pagination" v-if="totalPages > 0">
             <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
-            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
+            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
+                showPage }}</button>
             <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
-                :class="{ active: currentPage === showPage + 1 || inpval == showPage+1 }">{{ showPage + 1 }}</button>
+                :class="{ active: currentPage === showPage + 1 || inpval == showPage + 1 }">{{ showPage + 1 }}</button>
             <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
-                :class="{ active: currentPage === showPage + 2 || inpval == showPage+2 }">{{ showPage + 2 }}</button>
+                :class="{ active: currentPage === showPage + 2 || inpval == showPage + 2 }">{{ showPage + 2 }}</button>
             <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
-                :class="{ active: currentPage === showPage + 3 || inpval == showPage+3 }">{{ showPage + 3 }}</button>
+                :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3 }}</button>
             <button :disabled="currentPage === totalPages" @click="nextPage">&gt;</button>
             <div>
                 <input type="text" style="width: 60px;" v-model="inpvals"> <button @click="gotoPage">Go</button>
@@ -365,6 +369,7 @@ button.active {
 
 .file-management {
     padding: 24px;
+    height: auto;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -465,7 +470,7 @@ select {
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 table {
@@ -517,6 +522,7 @@ td {
 /* 操作按钮和下拉菜单样式 */
 .action-cell {
     position: relative;
+    /* display: flex; */
 }
 
 .action-btn {
@@ -604,4 +610,6 @@ td {
 .btn {
     min-width: 80px;
 }
+
+
 </style>
