@@ -35,7 +35,7 @@ interface MedicalRecord {
 // 用户存储
 export const useUserStore = defineStore('user', {
   state: () => ({
-    currentUser: null as User | null
+    currentUser: null as User | null,
   }),
   actions: {
     // 登录

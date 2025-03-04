@@ -1,6 +1,6 @@
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
-import { useRouter } from 'vue-router';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import { useRoute } from 'vue-router';
 import testdata from '../data/data';
 
 interface TemplateFile {
@@ -14,8 +14,8 @@ interface TemplateFile {
 export default defineComponent({
     name: "FileManagement",
     setup() {
-        const router = useRouter();
-        const templateFiles: TemplateFile[] = testdata()
+        const route = useRoute();
+        const templateFiles: TemplateFile[] = testdata();
 
         const filters = ref({
             id: "",
@@ -23,6 +23,24 @@ export default defineComponent({
             author: "",
             category: "",
             modifyDate: "",
+        });
+
+        // 检查URL参数，如果有则应用筛选条件
+        onMounted(() => {
+            const queryId = route.query.id as string;
+            const queryName = route.query.name as string;
+            const queryAuthor = route.query.author as string;
+            const queryCategory = route.query.category as string;
+            
+            if (queryId) filters.value.id = queryId;
+            if (queryName) filters.value.templateName = queryName;
+            if (queryAuthor) filters.value.author = queryAuthor;
+            if (queryCategory) filters.value.category = queryCategory;
+            
+            // 如果有任何筛选条件，立即应用
+            if (queryId || queryName || queryAuthor || queryCategory) {
+                applyFilters();
+            }
         });
 
         const filteredTemplates = ref<TemplateFile[]>(templateFiles);
@@ -33,6 +51,9 @@ export default defineComponent({
         // 多定义一个inpvals的原因是按钮的激活判断inpval == showPage，如果直接给输入框绑定inpval会导致用户没有点击跳转按钮就使得按钮因为输入的数据实时变化而激活，
         // 所以要多定义一个变量用于存输入的内容，在需要变化inpval 的时候再变化
         const inpvals = ref('');
+        
+        // 控制操作下拉菜单的显示
+        const showActionMenu = ref<number | null>(null);
 
         const paginatedTemplates = computed(() => {
             const start = (currentPage.value - 1) * pageSize;
@@ -92,17 +113,31 @@ export default defineComponent({
             currentPage.value = 1;
         };
         
-        // 跳转到文件管理页面并应用筛选条件
-        const goToFileManage = (template: TemplateFile) => {
-            router.push({
-                path: '/filemanage',
-                query: {
-                    id: template.id.toString(),
-                    name: template.name,
-                    author: template.createdBy,
-                    category: template.category
-                }
-            });
+        // 切换操作菜单的显示状态
+        const toggleActionMenu = (id: number) => {
+            if (showActionMenu.value === id) {
+                showActionMenu.value = null;
+            } else {
+                showActionMenu.value = id;
+            }
+        };
+        
+        // 查看文件详情
+        const viewFileDetails = (id: number) => {
+            console.log('查看文件详情:', id);
+            showActionMenu.value = null;
+        };
+        
+        // 删除文件
+        const deleteFile = (id: number) => {
+            console.log('删除文件:', id);
+            showActionMenu.value = null;
+        };
+        
+        // 下载文件
+        const downloadFile = (id: number) => {
+            console.log('下载文件:', id);
+            showActionMenu.value = null;
         };
         
         // 页面跳转脚本实现
@@ -163,30 +198,32 @@ export default defineComponent({
             paginatedTemplates,
             currentPage,
             showPage,
-            inpval,inpvals,
+            inpval,
+            inpvals,
             totalPages,
+            showActionMenu,
+            toggleActionMenu,
+            viewFileDetails,
+            deleteFile,
+            downloadFile,
             gotoPage,
             applyFilters,
             resetFilters,
             changePage,
             prevPage,
             nextPage,
-            goToFileManage
         };
     },
 });
-
-
-
 </script>
 
 <template>
     <div class="file-management">
         <header class="header">
-            <h2>模板文件</h2>
-            <p>现存模板如下</p>
+            <h2>文件管理</h2>
+            <p>我的文件列表</p>
 
-            <button style="background: #409eff;color: white;position: relative;left: 1250px;">创建模板</button>
+            <button class="create-file-btn">创建文件</button>
             <hr style="width: 1350px;">
         </header>
 
@@ -197,8 +234,8 @@ export default defineComponent({
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
                 <div class="filter-item">
-                    <label>模板名称:</label>
-                    <input type="text" v-model="filters.templateName" placeholder="输入模板名称">
+                    <label>文件名称:</label>
+                    <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
                 </div>
                 <div class="filter-item">
                     <label>作者:</label>
@@ -216,7 +253,6 @@ export default defineComponent({
                     <label>修改日期:</label>
                     <input type="date" v-model="filters.modifyDate">
                 </div>
-
             </div>
             <div class="filter-actions">
                 <button class="btn query" @click="applyFilters">查询</button>
@@ -230,7 +266,8 @@ export default defineComponent({
                             d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
                             fill="#2F54EB" p-id="1473"></path>
                     </svg>
-                    重置</button>
+                    重置
+                </button>
             </div>
         </div>
 
@@ -239,57 +276,44 @@ export default defineComponent({
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>模板名称</th>
+                        <th>文件名称</th>
                         <th>作者</th>
                         <th>分类</th>
                         <th>修改时间</th>
-
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-if="paginatedTemplates.length === 0">
-                        <td colspan="5" class="no-data">暂无相关数据</td>
+                        <td colspan="6" class="no-data">暂无相关数据</td>
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
                         <td>{{ template.name }}</td>
                         <td>{{ template.createdBy }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
-                        <td style="width: 100px;">{{ template.modifyDatetime.split(" ")[0] }}
-                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
-                            </span>
+                        <td>{{ template.modifyDatetime.split(" ")[0] }}
+                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }}</span>
                         </td>
-                        <td style=" width: 50px;height: 50px; ">
-                            <button style="align-items: center; " class="goto" @click="goToFileManage(template)">
-                                <svg t="1740899969657" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                    xmlns="http://www.w3.org/2000/svg" p-id="4149" width="200" height="200">
-                                    <path
-                                        d="M584.533333 512l-302.933333 302.933333L341.333333 874.666667l302.933334-302.933334 59.733333-59.733333-59.733333-59.733333L341.333333 145.066667 281.6 209.066667l302.933333 302.933333z"
-                                        fill="#1296db" p-id="4150"></path>
-                                </svg>
+                        <td class="action-cell">
+                            <button class="action-btn" @click="toggleActionMenu(template.id)">
+                                <span>详情</span>
+                                <i class="dropdown-icon">▼</i>
                             </button>
-                        </td>
-                        <td style="padding: 0%; width: 50px; ">
-                            <button>
-                                <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                    xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
-                                    <path
-                                        d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12392" fill="#8a8a8a"></path>
-                                    <path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12393" fill="#8a8a8a"></path>
-                                    <path
-                                        d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12394" fill="#8a8a8a"></path>
-                                    <path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12395" fill="#8a8a8a"></path>
-                                    <path
-                                        d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12396" fill="#8a8a8a"></path>
-                                    <path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12397" fill="#8a8a8a"></path>
-                                </svg>
-                            </button>
+                            <div class="action-menu" v-if="showActionMenu === template.id">
+                                <div class="action-item" @click="viewFileDetails(template.id)">
+                                    <i class="view-icon"></i>
+                                    <span>查看</span>
+                                </div>
+                                <div class="action-item" @click="downloadFile(template.id)">
+                                    <i class="download-icon"></i>
+                                    <span>下载</span>
+                                </div>
+                                <div class="action-item delete" @click="deleteFile(template.id)">
+                                    <i class="delete-icon"></i>
+                                    <span>删除</span>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -297,18 +321,17 @@ export default defineComponent({
         </div>
 
         <div class="pagination" v-if="totalPages > 0">
-            <button  :disabled="currentPage === 1" @click="prevPage" ><</button>
-            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage}">{{ showPage }}</button>
+            <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
+            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
             <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
-                :class="{ active: currentPage === showPage + 1 || inpval == showPage+1}">{{ showPage + 1 }}</button>
+                :class="{ active: currentPage === showPage + 1 || inpval == showPage+1 }">{{ showPage + 1 }}</button>
             <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
-                :class="{ active: currentPage === showPage + 2 || inpval == showPage+2}">{{ showPage + 2 }}</button>
+                :class="{ active: currentPage === showPage + 2 || inpval == showPage+2 }">{{ showPage + 2 }}</button>
             <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
-                :class="{ active: currentPage === showPage + 3 || inpval == showPage+3}">{{ showPage + 3 }}</button>
-            <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
-            <button  :disabled="currentPage === totalPages" @click="nextPage">></button>
-            <div> 
-              <input type="text" style="width: 60px; " v-model="inpvals"> <button @click="gotoPage">Go</button>
+                :class="{ active: currentPage === showPage + 3 || inpval == showPage+3 }">{{ showPage + 3 }}</button>
+            <button :disabled="currentPage === totalPages" @click="nextPage">&gt;</button>
+            <div>
+                <input type="text" style="width: 60px;" v-model="inpvals"> <button @click="gotoPage">Go</button>
             </div>
         </div>
     </div>
@@ -327,7 +350,6 @@ button.active {
     width: 20px;
     height: 20px;
     padding: 0;
-
 }
 
 .file-management {
@@ -342,8 +364,23 @@ button.active {
     right: 100px;
 }
 
-.filter-continer {
-    /* width: 1500px; */
+.create-file-btn {
+    background: #409eff;
+    color: white;
+    position: relative;
+    left: 1250px;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.create-file-btn:hover {
+    background: #66b1ff;
+}
+
+.filter-container {
     background: #f8f9fa;
     padding: 16px;
     border-radius: 8px;
@@ -434,7 +471,6 @@ th {
 }
 
 td {
-    width: 250px;
     padding-bottom: 6px;
     padding-top: 6px;
     padding-left: 30px;
@@ -467,6 +503,70 @@ td {
     margin-top: 24px;
 }
 
+/* 操作按钮和下拉菜单样式 */
+.action-cell {
+    position: relative;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: #f0f2f5;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: #e0e2e5;
+}
+
+.dropdown-icon {
+    font-size: 10px;
+    transition: transform 0.3s;
+}
+
+.action-menu {
+    position: absolute;
+    top: 100%;
+    right: 30px;
+    width: 120px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.action-item:hover {
+    background: #f5f7fa;
+}
+
+.action-item.delete {
+    color: #f56c6c;
+}
+
+.action-item.delete:hover {
+    background: #fef0f0;
+}
+
+.action-item i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
 /* 新增样式 */
 .filter-row {
     display: flex;
@@ -492,15 +592,5 @@ td {
 /* 调整原有按钮间距 */
 .btn {
     min-width: 80px;
-}
-
-/* 添加goto按钮的悬停效果 */
-.goto {
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.goto:hover {
-    transform: scale(1.2);
 }
 </style>

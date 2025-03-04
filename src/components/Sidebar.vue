@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
@@ -7,6 +8,7 @@ const router = useRouter();
 // 用户存储
 const userStore = useUserStore();
 // 活动菜单项索引
+const activeIndex = ref('1');
 
 // 导航到指定路径
 const navigateTo = (path: string) => {
@@ -23,8 +25,6 @@ const logout = () => {
   userStore.logout();
   router.push('/login');
 };
-
-
 </script>
 
 <template>
@@ -48,6 +48,7 @@ const logout = () => {
 
 
     <div class="menu">
+      
       <div class="menu-item" @click="navigateTo('/dashboard')" :class="{ active: $route.path === '/dashboard' }">
         <i class="el-icon-s-home"></i>
         <span>首页</span>
@@ -64,6 +65,11 @@ const logout = () => {
       <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: $route.path === '/modelfile' }">
         <i class="el-icon-document-add"></i>
         <span>模板管理</span>
+      </div>
+      
+      <div class="menu-item" @click="navigateTo('/filemanage')" :class="{ active: $route.path === '/filemanage' }">
+        <i class="el-icon-folder"></i>
+        <span>文件管理</span>
       </div>
 
       <div class="menu-item" @click="navigateTo('/permissions')" :class="{ active: $route.path === '/permissions' }">

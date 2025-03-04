@@ -10,6 +10,7 @@ import Setting from '../views/Setting.vue';
 import ForgotPassword from '../views/ForgotPassword.vue';
 import PermissionManage from '../views/PermissionManage.vue';
 import ModelFlie from '../views/ModelFlie.vue';
+import Fliemange from '../views/Fliemange.vue';
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -71,6 +72,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/modelfile',
     name: 'ModelFile',
     component: ModelFlie
+  },
+  {
+    path: '/filemanage',
+    name: 'FileManage',
+    component: Fliemange
   }
 ];
 
