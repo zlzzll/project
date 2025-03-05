@@ -2,23 +2,18 @@
 import { defineComponent, ref, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import testdata from '../data/data';
+import { File } from "../types/types";
 
-interface TemplateFile {
-    id: number;
-    name: string;
-    createdBy: string;
-    category: string;
-    modifyDatetime: string;
-}
 
 export default defineComponent({
     name: "FileManagement",
     setup() {
         const route = useRoute();
-        const templateFiles: TemplateFile[] = testdata();
+        const templateFiles: File[] = testdata().fileData;
 
         const filters = ref({
             id: "",
+            filename:"",
             templateName: "",
             author: "",
             category: "",
@@ -31,11 +26,13 @@ export default defineComponent({
             const queryName = route.query.name as string;
             const queryAuthor = route.query.author as string;
             const queryCategory = route.query.category as string;
+            const queryModifyDate = route.query.modifyDate as string;
 
             if (queryId) filters.value.id = queryId;
             if (queryName) filters.value.templateName = queryName;
             if (queryAuthor) filters.value.author = queryAuthor;
             if (queryCategory) filters.value.category = queryCategory;
+            if (queryModifyDate) filters.value.modifyDate = queryModifyDate;
 
             // 如果有任何筛选条件，立即应用
             if (queryId || queryName || queryAuthor || queryCategory) {
@@ -43,7 +40,7 @@ export default defineComponent({
             }
         });
 
-        const filteredTemplates = ref<TemplateFile[]>(templateFiles);
+        const filteredTemplates = ref<File[]>(templateFiles);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -76,9 +73,12 @@ export default defineComponent({
             if (filters.value.id) {
                 result = result.filter(t => t.id.toString().includes(filters.value.id));
             }
+            if (filters.value.filename) {
+                result = result.filter(t => t.filename.includes(filters.value.filename));
+            }
 
             if (filters.value.templateName) {
-                result = result.filter(t => t.name.includes(filters.value.templateName));
+                result = result.filter(t => t.templateName.includes(filters.value.templateName));
             }
 
             if (filters.value.author) {
@@ -104,6 +104,7 @@ export default defineComponent({
         const resetFilters = () => {
             filters.value = {
                 id: "",
+                filename:"",
                 templateName: "",
                 author: "",
                 category: "",
@@ -117,12 +118,6 @@ export default defineComponent({
         const toggleActionMenu = (id:number) => {
             if (showActionMenu.value === id) {
                 showActionMenu.value = null;
-                // if(template.category == "b类"){
-                //     showMoreMenu.value = true;
-                // }
-                // if(template.category == "a类"){
-                //     showMoreMenu.value = false;
-                // }
             } else {
                 showActionMenu.value = id;
             }
@@ -152,6 +147,9 @@ export default defineComponent({
             showActionMenu.value = null;
         };
 
+
+
+
         // 页面跳转脚本实现
         function changePage(event: any) {
             const value = event.target.innerText;
@@ -161,7 +159,6 @@ export default defineComponent({
             console.log('Clicked value:', value); // 输出: Clicked value: 1
 
         }
-
         function prevPage() {
             // 先清空
             inpval.value = ''
@@ -182,7 +179,6 @@ export default defineComponent({
                 }
             }
         }
-
         function gotoPage() {
             if (inpvals.value == '') {
                 return
@@ -205,6 +201,9 @@ export default defineComponent({
                 showPage.value = Math.trunc(inpval.value / 4) * 4 + 1
             }
         }
+
+
+
         return {
             filters,
             paginatedTemplates,
@@ -243,24 +242,20 @@ export default defineComponent({
         <div class="filter-container">
             <div class="filter-group">
                 <div class="filter-item">
-                    <label>文档ID:</label>
+                    <label>ID:</label>
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
-                <div class="filter-item">
-                    <label>文档:</label>
+                 <div class="filter-item">
+                    <label>文档名称:</label>
+                    <input type="text" v-model="filters.filename" placeholder="输入文件名称">
+                </div>
+               <div class="filter-item">
+                    <label>关联模板:</label>
                     <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
                 </div>
                 <div class="filter-item">
                     <label>作者:</label>
                     <input type="text" v-model="filters.author" placeholder="输入作者">
-                </div>
-                <div class="filter-item">
-                    <label>关联模板:</label>
-                    <select v-model="filters.category">
-                        <option value="">全部</option>
-                        <option value="a类">a类</option>
-                        <option value="b类">b类</option>
-                    </select>
                 </div>
                 <div class="filter-item">
                     <label>修改日期:</label>
@@ -289,9 +284,10 @@ export default defineComponent({
                 <thead>
                     <tr>
                         <th>文档ID</th>
-                        <th>文档</th>
+                        <th>文档名</th>
+                        <th>模板</th>
                         <th>作者</th>
-                        <!-- <th>分类</th> -->
+                        
                         <th>修改时间</th>
                         <th></th>
                     </tr>
@@ -302,17 +298,16 @@ export default defineComponent({
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
-                        <td>{{ template.name }}</td>
+                        <td>{{ template.filename}}</td>
+                        <td>{{ template.templateName }}</td>
                         <td>{{ template.createdBy }}</td>
-                        <!-- <td><span class="category-tag">{{ template.category }}</span></td> -->
                         <td>{{ template.modifyDatetime.split(" ")[0] }}
                             <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
                                 }} AM</div>
                         </td>
                         <td class="action-cell">
                             <div class="act">
-                                <button class="action-btn" @click="toggleActionMenu(template.id)">
-                                  
+                                <button class="action-btn" @click="toggleActionMenu(template.id)">      
                                     <i class="dropdown-icon">▼</i>
                                 </button>
                                 <div class="action-menu" v-if="showActionMenu === template.id">
@@ -404,7 +399,7 @@ button.active {
 
 .filter-container {
     
-    padding: 16px;
+    padding: 0px;
     border-radius: 8px;
     margin-bottom: 24px;
     /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); */
@@ -532,6 +527,7 @@ td {
     /* display: flex; */
 }
 
+
 .action-btn {
     display: flex;
     align-items: center;
@@ -557,7 +553,7 @@ td {
 .action-menu {
     position: absolute;
     top: 100%;
-    right: 30px;
+    right: -10px;
     width: 120px;
     background: white;
     border-radius: 4px;

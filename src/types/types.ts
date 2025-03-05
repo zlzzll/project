@@ -5,3 +5,19 @@ export interface User {
     role: string;
   }
   
+export  interface TemplateFile {
+    id: number;
+    name: string;
+    createdBy: string;
+    category: string;
+    modifyDatetime: string;
+}
+
+export interface File {
+  id: number;
+  filename:string;
+  templateName: string;
+  createdBy: string;
+  category: string;
+  modifyDatetime: string;
+}

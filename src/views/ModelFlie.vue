@@ -2,20 +2,14 @@
 import { defineComponent, ref, computed } from "vue";
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
+import { TemplateFile } from "../types/types";
 
-interface TemplateFile {
-    id: number;
-    name: string;
-    createdBy: string;
-    category: string;
-    modifyDatetime: string;
-}
 
 export default defineComponent({
     name: "FileManagement",
     setup() {
         const router = useRouter();
-        const templateFiles: TemplateFile[] = testdata()
+        const templateFiles: TemplateFile[] = testdata().templateFiles
 
         const filters = ref({
             id: "",
@@ -97,10 +91,10 @@ export default defineComponent({
             router.push({
                 path: '/filemanage',
                 query: {
-                    id: template.id.toString(),
+                    
                     name: template.name,
                     author: template.createdBy,
-                    category: template.category
+                    date: template.modifyDatetime,
                 }
             });
         };
@@ -239,7 +233,7 @@ export default defineComponent({
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>模板名称</th>
+                        <th>模板</th>
                         <th>作者</th>
                         <th>分类</th>
                         <th>修改时间</th>

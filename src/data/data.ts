@@ -1,11 +1,7 @@
+import { File, TemplateFile } from '../types/types';
 export default function testdata() {
-  interface TemplateFile {
-    id: number;
-    name: string;
-    createdBy: string;
-    category: string;
-    modifyDatetime: string;
-  }
+
+
   const templateFiles: TemplateFile[] =[
       { "id": 205198387, "name": "陆军军医大学附属医院病历", "createdBy": "张康", "category": "a类", "modifyDatetime": "24.12.2024 11:36 AM" },
       { "id": 205198388, "name": "陆军军医大学附属医院病历", "createdBy": "张康", "category": "b类", "modifyDatetime": "24.12.2024 11:36 AM" },
@@ -53,8 +49,18 @@ export default function testdata() {
       { "id": 205198430, "name": "陆军军医大学附属医院病历", "createdBy": "张静", "category": "b类", "modifyDatetime": "24.12.2024 12:18 PM" }
     ]
 
+  const fileData:File[] = [
+    { id: 205198431, filename: 'template1.docx',templateName:'陆军军医大学附属医院病历	', createdBy: '张康', category: 'a类', modifyDatetime: '24.12.2024 12:19 PM' },
+    { id: 205198432, filename: 'template2.docx', templateName:'陆军军医大学附属医院病历	',createdBy: '张康', category: 'b类', modifyDatetime: '24.12.2024 12:20 PM' },
+    { id: 205198433, filename: 'template3.docx', templateName:'陆军军医大学附属医院病历	',createdBy: '张康', category: 'a类', modifyDatetime: '24.12.2024 12:21 PM' },
+    { id: 205198434, filename: 'template4.docx', templateName:'陆军军医大学附属医院病历  ', createdBy: '张康', category: 'b类', modifyDatetime: '24.12.2024 12:22 PM' },
+    { id: 205198435, filename: 'template5.docx', templateName:'陆军军医大学附属医院病历  ', createdBy: '王伟', category: 'a类', modifyDatetime: '24.12.2024 12:23 PM' },
+    { id: 205198436, filename: 'template6.docx', templateName:'南洋理工大学大学附属医院病历  ', createdBy: '王伟', category: 'a类', modifyDatetime: '24.12.2024 12:23 PM' },
+
+
+  ]
   // Sort the data by the modify datetime in descending orde
-  return templateFiles
+  return {templateFiles, fileData}
 }
 
 
