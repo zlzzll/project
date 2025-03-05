@@ -13,7 +13,7 @@ export default defineComponent({
 
         const filters = ref({
             id: "",
-            filename:"",
+            filename: "",
             templateName: "",
             author: "",
             category: "",
@@ -104,7 +104,7 @@ export default defineComponent({
         const resetFilters = () => {
             filters.value = {
                 id: "",
-                filename:"",
+                filename: "",
                 templateName: "",
                 author: "",
                 category: "",
@@ -115,7 +115,7 @@ export default defineComponent({
         };
 
         // 切换操作菜单的显示状态
-        const toggleActionMenu = (id:number) => {
+        const toggleActionMenu = (id: number) => {
             if (showActionMenu.value === id) {
                 showActionMenu.value = null;
             } else {
@@ -245,11 +245,11 @@ export default defineComponent({
                     <label>ID:</label>
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
-                 <div class="filter-item">
+                <div class="filter-item">
                     <label>文档名称:</label>
                     <input type="text" v-model="filters.filename" placeholder="输入文件名称">
                 </div>
-               <div class="filter-item">
+                <div class="filter-item">
                     <label>关联模板:</label>
                     <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
                 </div>
@@ -287,7 +287,7 @@ export default defineComponent({
                         <th>文档名</th>
                         <th>模板</th>
                         <th>作者</th>
-                        
+
                         <th>修改时间</th>
                         <th></th>
                     </tr>
@@ -298,35 +298,40 @@ export default defineComponent({
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
-                        <td>{{ template.filename}}</td>
+                        <td>{{ template.filename }}</td>
                         <td>{{ template.templateName }}</td>
                         <td>{{ template.createdBy }}</td>
                         <td>{{ template.modifyDatetime.split(" ")[0] }}
                             <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
-                                }} AM</div>
+                            }} AM</div>
                         </td>
                         <td class="action-cell">
                             <div class="act">
-                                <button class="action-btn" @click="toggleActionMenu(template.id)">      
+                                <button class="action-btn" @click="toggleActionMenu(template.id)">
                                     <i class="dropdown-icon">▼</i>
                                 </button>
                                 <div class="action-menu" v-if="showActionMenu === template.id">
-                                    <div class="action-item" @click="viewFileDetails(template.id)">
-                                        <i class="view-icon"></i>
-                                        <span>查看</span>
-                                    </div>
-                                    <div class="action-item" @click="downloadFile(template.id)">
-                                        <i class="download-icon"></i>
-                                        <span>下载</span>
-                                    </div>
-                                    <div v-if="template.category == `b类`" class="action-item delete" @click="renameFile(template.id)">
-                                        <i class="delete-icon"></i>
-                                        <span>重命名</span>
-                                    </div>
-                                    <div v-if="template.category == `b类`" class="action-item delete" @click="deleteFile(template.id)">
+                                    <div v-if="template.category == `b类`" class="action-item"
+                                        style="background-color:orangered;" @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>删除</span>
                                     </div>
+                                    <div class="action-item" style="background-color:#409eff;"
+                                        @click="viewFileDetails(template.id)">
+                                        <i class="view-icon"></i>
+                                        <span>查看</span>
+                                    </div>
+                                    <div class="action-item" style="background-color:palevioletred;"
+                                        @click="downloadFile(template.id)">
+                                        <i class="download-icon"></i>
+                                        <span>下载</span>
+                                    </div>
+                                    <div v-if="template.category == `b类`" class="action-item "
+                                        style="background-color:greenyellow;" @click="renameFile(template.id)">
+                                        <i class="delete-icon"></i>
+                                        <span>重命名</span>
+                                    </div>
+
                                 </div>
                             </div>
                         </td>
@@ -398,7 +403,7 @@ button.active {
 }
 
 .filter-container {
-    
+
     padding: 0px;
     border-radius: 8px;
     margin-bottom: 24px;
@@ -417,7 +422,7 @@ button.active {
 .filter-item {
     position: relative;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     /* gap: 4px; */
 }
 
@@ -563,6 +568,7 @@ td {
 }
 
 .action-item {
+    color: white;
     display: flex;
     align-items: center;
     padding: 10px 15px;
@@ -613,6 +619,4 @@ td {
 .btn {
     min-width: 80px;
 }
-
-
 </style>
