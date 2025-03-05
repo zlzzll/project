@@ -30,7 +30,7 @@ const logout = () => {
 <template>
   <div class="sidebar">
     <div class="logo">
-      <h2>电子病历系统</h2>
+      <h2>电子病历撰写系统</h2>
     </div>
 
     <div class="user-express">
@@ -49,18 +49,10 @@ const logout = () => {
 
     <div class="menu">
       
-      <div class="menu-item" @click="navigateTo('/dashboard')" :class="{ active: $route.path === '/dashboard' }">
+      <!-- <div class="menu-item" @click="navigateTo('/dashboard')" :class="{ active: $route.path === '/dashboard' }">
         <i class="el-icon-s-home"></i>
         <span>首页</span>
-      </div>
-      <div class="menu-item" @click="navigateTo('/patients')" :class="{ active: $route.path === '/patients' }">
-        <i class="el-icon-user"></i>
-        <span>患者管理</span>
-      </div>
-      <div class="menu-item" @click="navigateTo('/new-record')" :class="{ active: $route.path === '/new-record' }">
-        <i class="el-icon-document-add"></i>
-        <span>新建病历</span>
-      </div>
+      </div> -->
 
       <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: $route.path === '/modelfile' }">
         <i class="el-icon-document-add"></i>

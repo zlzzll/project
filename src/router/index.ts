@@ -1,10 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
-import PatientList from '../views/PatientList.vue';
-import PatientDetail from '../views/PatientDetail.vue';
-import MedicalRecord from '../views/MedicalRecord.vue';
-import NewRecord from '../views/NewRecord.vue';
 import Register from '../views/Register.vue';
 import Setting from '../views/Setting.vue';
 import ForgotPassword from '../views/ForgotPassword.vue';
@@ -28,26 +24,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Dashboard',
     component: Dashboard
   },
-  {
-    path: '/patients',
-    name: 'PatientList',
-    component: PatientList
-  },
-  {
-    path: '/patients/:id',
-    name: 'PatientDetail',
-    component: PatientDetail
-  },
-  {
-    path: '/records/:id',
-    name: 'MedicalRecord',
-    component: MedicalRecord
-  },
-  {
-    path: '/new-record',
-    name: 'NewRecord',
-    component: NewRecord
-  },
+
   {
     path: '/register',
     name: 'Register',
@@ -90,7 +67,7 @@ router.beforeEach((to, _from, next) => {
   const isAuthenticated = localStorage.getItem('user');
   
   // 不需要身份验证的路由
-  const publicRoutes = ['Login', 'Register', 'ForgotPassword'];
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email']; //这里必须填路由的name
   
   if (!publicRoutes.includes(to.name as string) && !isAuthenticated) {
     next({ name: 'Login' });

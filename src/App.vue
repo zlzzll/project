@@ -11,7 +11,7 @@ const router = useRouter();
 
 // 判断当前路由是否需要显示侧边栏
 const shouldShowSidebar = () => {
-  const publicRoutes = ['Login', 'Register', 'ForgotPassword'];
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword',"Email"];
   return !publicRoutes.includes(router.currentRoute.value.name as string);
 };
 const shouldShow = ref(true);

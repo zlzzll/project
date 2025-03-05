@@ -8,7 +8,7 @@ interface EditData {
 
 // 用户信息
 const userInfo = ref({
-    username: 'JohnDoe',
+    username: '张伟',
     organization: '技术部',
     email: 'johndoe@example.com',
 });
@@ -104,10 +104,10 @@ const closeFileUpload = () => {
         </div>
 
         <!-- 权限管理模块 -->
-        <div class="permission-section">
-            <h3>权限管理</h3>
-            <button class="permission-btn">管理权限</button>
-        </div>
+            <!-- <div class="permission-section">
+                <h3>权限管理</h3>
+                <button class="permission-btn">管理权限</button>
+            </div> -->
 
         <!-- 编辑弹窗 -->
         <div v-if="showDialog" class="edit-dialog-mask">

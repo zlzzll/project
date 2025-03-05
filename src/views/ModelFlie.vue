@@ -296,6 +296,7 @@ export default defineComponent({
             </table>
         </div>
 
+        <!-- 底部的那个页面跳转按钮 -->
         <div class="pagination" v-if="totalPages > 0">
             <button  :disabled="currentPage === 1" @click="prevPage" ><</button>
             <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage}">{{ showPage }}</button>

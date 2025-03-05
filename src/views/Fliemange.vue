@@ -114,9 +114,15 @@ export default defineComponent({
         };
 
         // 切换操作菜单的显示状态
-        const toggleActionMenu = (id: number) => {
+        const toggleActionMenu = (id:number) => {
             if (showActionMenu.value === id) {
                 showActionMenu.value = null;
+                // if(template.category == "b类"){
+                //     showMoreMenu.value = true;
+                // }
+                // if(template.category == "a类"){
+                //     showMoreMenu.value = false;
+                // }
             } else {
                 showActionMenu.value = id;
             }
@@ -237,11 +243,11 @@ export default defineComponent({
         <div class="filter-container">
             <div class="filter-group">
                 <div class="filter-item">
-                    <label>ID:</label>
+                    <label>文档ID:</label>
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
                 <div class="filter-item">
-                    <label>文件名称:</label>
+                    <label>文档:</label>
                     <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
                 </div>
                 <div class="filter-item">
@@ -249,7 +255,7 @@ export default defineComponent({
                     <input type="text" v-model="filters.author" placeholder="输入作者">
                 </div>
                 <div class="filter-item">
-                    <label>类别:</label>
+                    <label>关联模板:</label>
                     <select v-model="filters.category">
                         <option value="">全部</option>
                         <option value="a类">a类</option>
@@ -282,10 +288,10 @@ export default defineComponent({
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>文件名称</th>
+                        <th>文档ID</th>
+                        <th>文档</th>
                         <th>作者</th>
-                        <th>分类</th>
+                        <!-- <th>分类</th> -->
                         <th>修改时间</th>
                         <th></th>
                     </tr>
@@ -298,10 +304,10 @@ export default defineComponent({
                         <td>{{ template.id }}</td>
                         <td>{{ template.name }}</td>
                         <td>{{ template.createdBy }}</td>
-                        <td><span class="category-tag">{{ template.category }}</span></td>
+                        <!-- <td><span class="category-tag">{{ template.category }}</span></td> -->
                         <td>{{ template.modifyDatetime.split(" ")[0] }}
-                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
-                                }}</span>
+                            <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
+                                }} AM</div>
                         </td>
                         <td class="action-cell">
                             <div class="act">
@@ -318,11 +324,11 @@ export default defineComponent({
                                         <i class="download-icon"></i>
                                         <span>下载</span>
                                     </div>
-                                    <div class="action-item delete" @click="renameFile(template.id)">
+                                    <div v-if="template.category == `b类`" class="action-item delete" @click="renameFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>重命名</span>
                                     </div>
-                                    <div class="action-item delete" @click="deleteFile(template.id)">
+                                    <div v-if="template.category == `b类`" class="action-item delete" @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>删除</span>
                                     </div>
@@ -397,11 +403,11 @@ button.active {
 }
 
 .filter-container {
-    background: #f8f9fa;
+    
     padding: 16px;
     border-radius: 8px;
     margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); */
 }
 
 .filter-group {
@@ -416,11 +422,12 @@ button.active {
 .filter-item {
     position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-direction:column;
+    /* gap: 4px; */
 }
 
 label {
+    /* width: 60px; */
     font-size: 12px;
     color: #606266;
 }

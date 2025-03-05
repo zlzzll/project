@@ -26,7 +26,7 @@ const handleLogin = async () => {
     const success = userStore.login(username.value, password.value);
     if (success) {
       ElMessage.success('登录成功');
-      router.push('/dashboard');
+      router.push('/modelfile');
     } else {
       ElMessage.error('用户名或密码错误');
     }
@@ -52,8 +52,8 @@ const handleForgotPassword = () => {
   <div class="login-container">
     <div class="login-box">
       <div class="login-header">
-        <h2>电子病历系统</h2>
-        <p>医疗服务数字化管理平台</p>
+        <h2>电子病历撰写系统</h2>
+        <p>病历撰写数字化 平台</p>
       </div>
       <div class="login-form">
         <div class="form-item">
