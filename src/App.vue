@@ -11,7 +11,7 @@ const router = useRouter();
 
 // 判断当前路由是否需要显示侧边栏
 const shouldShowSidebar = () => {
-  const publicRoutes = ['Login', 'Register', 'ForgotPassword',"Email"];
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword', "Email"];
   return !publicRoutes.includes(router.currentRoute.value.name as string);
 };
 const shouldShow = ref(true);
@@ -19,10 +19,13 @@ const shouldShow = ref(true);
 
 <template>
   <div class="app-container">
+
     <!-- 只在非登录/注册/找回密码页面显示侧边栏 -->
     <Sidebar v-if="shouldShowSidebar() && shouldShow" />
-    <button @click="()=>shouldShow=!shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{ shouldShow == true ? "<" :">" }}</button>
     
+    <button @click="() => shouldShow = !shouldShow" style="height: 100px; width: 30px;" v-if="shouldShowSidebar()">{{
+      shouldShow == true ? "<" : ">" }}</button>
+
     <div class="main-content" :class="{ 'with-sidebar': shouldShowSidebar() }">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -43,13 +46,15 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
 button:focus {
-    outline: none;
+  outline: none;
 }
+
 .app-container {
   width: 100%;
   height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
   display: flex;
 }
 

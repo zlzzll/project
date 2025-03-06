@@ -74,6 +74,9 @@ export default defineComponent({
             currentPage.value = 1;
         };
 
+        const goToCreateTemplate = () => {
+            router.push('/create-template');
+        };
         const resetFilters = () => {
             filters.value = {
                 id: "",
@@ -157,6 +160,7 @@ export default defineComponent({
             paginatedTemplates,
             currentPage,
             showPage,
+            goToCreateTemplate,
             inpval,inpvals,
             totalPages,
             gotoPage,
@@ -180,7 +184,7 @@ export default defineComponent({
             <h2>模板文件</h2>
             <p>现存模板如下</p>
 
-            <button style="background: #409eff;color: white;position: relative;left: 1250px;">创建模板</button>
+            <button style="background: #409eff;color: white;position: relative;left: 1250px;" @click="goToCreateTemplate">创建模板</button>
             <hr style="width: 1350px;">
         </header>
 
@@ -317,7 +321,13 @@ button.active {
     color: white;
     /* 白色文字 */
 }
-
+.filter-container {
+    padding: 2vw;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
 .icon {
     width: 20px;
     height: 20px;

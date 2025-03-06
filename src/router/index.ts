@@ -7,7 +7,7 @@ import ForgotPassword from '../views/ForgotPassword.vue';
 import PermissionManage from '../views/PermissionManage.vue';
 import ModelFlie from '../views/ModelFlie.vue';
 import Fliemange from '../views/Fliemange.vue';
-
+import CreateTemplate from '../views/CreateTemplate.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,7 +24,6 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Dashboard',
     component: Dashboard
   },
-
   {
     path: '/register',
     name: 'Register',
@@ -54,6 +53,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/filemanage',
     name: 'FileManage',
     component: Fliemange
+  },
+  {
+    path: '/create-template',
+    name: 'CreateTemplate',
+    component: CreateTemplate
   }
 ];
 
