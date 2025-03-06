@@ -8,6 +8,7 @@ import PermissionManage from '../views/PermissionManage.vue';
 import ModelFlie from '../views/ModelFlie.vue';
 import Fliemange from '../views/Fliemange.vue';
 import CreateTemplate from '../views/CreateTemplate.vue';
+import CreateFile from '../views/CreateFile.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -58,6 +59,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/create-template',
     name: 'CreateTemplate',
     component: CreateTemplate
+  },
+  {
+    path: '/createfile',
+    name: 'CreateFile',
+    component: CreateFile
   }
 ];
 

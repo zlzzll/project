@@ -4,109 +4,60 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus'; 
 
 
-declare type File = {
+declare type Files = {
   name: string;
-  size: number;
   type: string;
-  lastModified: number;
+
 };
 
 const router = useRouter();
-const templateName = ref('');
-const templateType = ref('b类');
-const fileList = ref<File[]>([]);
+const fileName = ref('');
+const fileType = ref('');
 
-const handleFileUpload = (e:EventTarget|null|any) => {
-    const file = (e as HTMLInputElement).files?.[0];
-  if (file) {
-    fileList.value.push(file); 
-  }
-};
 
 const handleSubmit = () => {
-  if (!templateName.value) {
-    ElMessage.warning('请输入模板名称');
-    return;
-  }
-  if (fileList.value.length === 0) {
-    ElMessage.warning('请上传模板文件');
+  if (!fileName.value) {
+    ElMessage.warning('请输入文件名称');
     return;
   }
   
-  ElMessage.success('模板创建成功');
+  ElMessage.success('文件创建成功');
   router.push('/modelfile');
 };
 
-const handleDragOver = (e: DragEvent) => {
-  e.preventDefault();
-};
 
-const handleDrop = (e: DragEvent) => {
-  e.preventDefault();
-  const files = e.dataTransfer?.files;
-  if (files && files.length > 0) {
-    const file = files[0];
-    handleFileUpload(file);
-  }
-};
-
-const removeFile = (index: number) => {
-  fileList.value.splice(index, 1);
-};
 </script>
 
 <template>
   <div class="create-template">
     <div class="template-form">
-      <h2>创建模板</h2>
+      <h2>创建文件</h2>
       
       <div class="form-group">
         <label>模板类别</label>
         <div class="select-wrapper">
-          <select v-model="templateType">
-            <option value="a类" disabled>a类</option>
-            <option value="b类">b类</option>
+          <select v-model="fileType">
+            <option ></option>
+            <option value="a类" >陆军医院</option>
+            <option value="b类">空军医院</option>
+            
           </select>
-          <div class="help-icon" title="当前仅有创建b类模板权限">?</div>
+          <div class="help-icon" title="可以无类别">?</div>
         </div>
       </div>
 
       <div class="form-group">
-        <label>模板名称</label>
+        <label>文件名称</label>
         <input 
           type="text" 
-          v-model="templateName"
-          placeholder="请输入模板名称"
+          v-model="fileName"
+          placeholder="请输入文件名称"
         />
       </div>
 
-      <div class="form-group">
-        <label>模板上传</label>
-        <div 
-          class="upload-area"
-          @dragover="handleDragOver"
-          @drop="handleDrop"
-        >
-          <input 
-            type="file" 
-            @change="(e) => handleFileUpload(e.target)"
-            style="display: none"
-            ref="fileInput"
-          />
-          <div v-if="fileList.length === 0" class="upload-placeholder">
-            <div class="upload-icon">+</div>
-            <p>点击或拖拽文件到此处上传</p>
-          </div>
-          <div v-else class="file-list">
-            <div v-for="(file, index) in fileList" :key="index" class="file-item">
-              <span>{{ file.name }}</span>
-              <button @click="removeFile(index)" class="remove-btn">×</button>
-            </div>
-          </div>
-        </div>
-      </div>
+    
 
-      <button class="submit-btn" @click="handleSubmit">提交</button>
+      <button style="align-items: center;" @click="handleSubmit">创建</button>
     </div>
   </div>
 </template>

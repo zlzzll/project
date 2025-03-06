@@ -3,6 +3,7 @@ import { defineComponent, ref, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import testdata from '../data/data';
 import { File } from "../types/types";
+import router from "../router";
 
 
 export default defineComponent({
@@ -67,6 +68,9 @@ export default defineComponent({
             return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
         };
 
+        const gotoFileCreate = () => {
+            router.push('/createfile');
+        };
         const applyFilters = () => {
             let result = templateFiles;
 
@@ -213,6 +217,7 @@ export default defineComponent({
             inpvals,
             totalPages,
             showActionMenu,
+            gotoFileCreate,
             toggleActionMenu,
             viewFileDetails,
             deleteFile,
@@ -235,7 +240,7 @@ export default defineComponent({
             <h2>文件管理</h2>
             <p>我的文件列表</p>
 
-            <button class="create-file-btn">创建文件</button>
+            <button class="create-file-btn" @click="gotoFileCreate">创建文件</button>
             <hr style="width: 1350px;">
         </header>
 
@@ -340,7 +345,7 @@ export default defineComponent({
             </table>
         </div>
 
-        <div class="pagination" v-if="totalPages > 0">
+        <div class="pagination" v-if="totalPages > 0" >
             <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
             <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
                 showPage }}</button>
@@ -577,7 +582,8 @@ td {
 }
 
 .action-item:hover {
-    background: #f5f7fa;
+    color: #000000;
+    box-shadow: #606266;
 }
 
 .action-item.delete {
