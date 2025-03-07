@@ -48,11 +48,6 @@ const logout = () => {
 
 
     <div class="menu">
-      
-      <!-- <div class="menu-item" @click="navigateTo('/dashboard')" :class="{ active: $route.path === '/dashboard' }">
-        <i class="el-icon-s-home"></i>
-        <span>首页</span>
-      </div> -->
 
       <div class="menu-item" @click="navigateTo('/modelfile')" :class="{ active: $route.path === '/modelfile' }">
         <i class="el-icon-document-add"></i>

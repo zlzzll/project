@@ -1,4 +1,4 @@
-import { File, TemplateFile } from '../types/types';
+import { MyFile, TemplateFile } from '../types/types';
 export default function testdata() {
 
 
@@ -49,7 +49,7 @@ export default function testdata() {
       { "id": 205198430, "name": "陆军军医大学附属医院病历", "createdBy": "张静", "category": "b类", "modifyDatetime": "24.12.2024 12:18 PM" }
     ]
 
-  const fileData:File[] = [
+  const fileData:MyFile[] = [
     { id: 205198431, filename: 'template1.docx',templateName:'陆军军医大学附属医院病历	', createdBy: '张康', category: 'a类', modifyDatetime: '24.12.2024 12:19 PM' },
     { id: 205198432, filename: 'template2.docx', templateName:'陆军军医大学附属医院病历	',createdBy: '张康', category: 'b类', modifyDatetime: '24.12.2024 12:20 PM' },
     { id: 205198433, filename: 'template3.docx', templateName:'陆军军医大学附属医院病历	',createdBy: '张康', category: 'a类', modifyDatetime: '24.12.2024 12:21 PM' },

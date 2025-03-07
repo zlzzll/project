@@ -2,7 +2,7 @@
 import { defineComponent, ref, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import testdata from '../data/data';
-import { File } from "../types/types";
+import { MyFile } from "../types/types";
 import router from "../router";
 
 
@@ -10,7 +10,7 @@ export default defineComponent({
     name: "FileManagement",
     setup() {
         const route = useRoute();
-        const templateFiles: File[] = testdata().fileData;
+        const templateFiles: MyFile[] = testdata().fileData;
 
         const filters = ref({
             id: "",
@@ -41,7 +41,7 @@ export default defineComponent({
             }
         });
 
-        const filteredTemplates = ref<File[]>(templateFiles);
+        const filteredTemplates = ref<MyFile[]>(templateFiles);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;

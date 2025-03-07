@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 import { ElMessage } from 'element-plus';
+import verifyCode from '../tools/verifyCode';
 
 // 路由器实例
 const router = useRouter();
@@ -23,12 +24,14 @@ const handleLogin = async () => {
 
   loading.value = true;
   try {
-    const success = userStore.login(username.value, password.value);
-    if (success) {
+    const res =await userStore.login(username.value, password.value);
+
+    if (res == 200)  {
       ElMessage.success('登录成功');
       router.push('/modelfile');
-    } else {
-      ElMessage.error('用户名或密码错误');
+    } else{
+      const message = verifyCode(res)
+      ElMessage.error(message);
     }
   } catch (error) {
     ElMessage.error('登录失败，请重试');
@@ -36,6 +39,9 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+
+
 
 // 跳转到注册页面
 const handleRegister = () => {
@@ -58,7 +64,7 @@ const handleForgotPassword = () => {
       <div class="login-form">
         <div class="form-item">
           <span style="display: inline-block;padding-right: 2%;">邮箱✉️:</span>
-          <input type="text" v-model="username" placeholder="请输入用户名" />
+          <input type="text" v-model="username" placeholder="请输入邮箱" />
         </div>
 
         <div class="form-item">
@@ -87,7 +93,7 @@ const handleForgotPassword = () => {
 
 
         <div class="login-tips">
-          <p>提示： 用户名 doctor，密码 password</p>
+          <p>提示： 用户名 doctor@126.com，密码 password</p>
         </div>
       </div>
     </div>

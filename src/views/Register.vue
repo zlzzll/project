@@ -2,6 +2,13 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
+import host from '../config/hostname';
+import verifyCode from '../tools/verifyCode';
+
+//请求的主地址
+const hostname = host()
+
 
 // 路由器实例
 const router = useRouter();
@@ -134,23 +141,14 @@ const validateForm = () => {
     return isValid;
 };
 
-// 提交注册表单
-const handleRegister = () => {
-  if (validateForm()) {
-    // 这里应该是调用API进行注册
-    // 模拟注册成功
-    ElMessage.success('注册成功，请登录');
-    router.push('/login');
-  }
-};
 
 // 返回登录页
 const goToEmail = () => {
-    
-  if (validateForm()) {
-    ElMessage.warning('请验证邮箱');
-    currentStep.value = 2;
-  }
+
+    if (validateForm()) {
+        ElMessage.warning('请验证邮箱');
+        currentStep.value = 2;
+    }
 }
 
 const goToPre = () => {
@@ -182,44 +180,86 @@ const EmailformErrors = reactive({
 const countdown = ref(0);
 const countdownTimer = ref<number | null>(null);
 
+
 // 发送验证码
-const sendVerificationCode = () => {
-    
+const sendVerificationCode = async () => {
+    // 发送验证码
+    try {
+        const response = await axios.post(hostname + '/auth/captcha/email' ,{
+            email: emailForm.email
+        });
+        if (response.data.code == 200) {
+            ElMessage.success('验证码已发送到您的邮箱');
 
-    // 模拟发送验证码
-    ElMessage.success('验证码已发送到您的邮箱');
-
-    // 开始倒计时
-    countdown.value = 60;
-    if (countdownTimer.value) {
-        clearInterval(countdownTimer.value);
-    }
-
-    countdownTimer.value = window.setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
+            // 开始倒计时
+            countdown.value = 60;
             if (countdownTimer.value) {
                 clearInterval(countdownTimer.value);
-                countdownTimer.value = null;
             }
+            countdownTimer.value = window.setInterval(() => {
+                countdown.value--;
+                if (countdown.value <= 0) {
+                    if (countdownTimer.value) {
+                        clearInterval(countdownTimer.value);
+                        countdownTimer.value = null;
+                    }
+                }
+            }, 1000);
+
+        } else {
+            const message = verifyCode(response.data.code)
+            ElMessage.error(message);
         }
-    }, 1000);
+        // 发送验证码   
+    } catch (e) {
+        ElMessage.error('验证码请求失败');
+        console.log(e);
+    }
+
+
+
 };
 
 // 验证邮箱和验证码
-const verifyEmail = () => {
+const verifyEmail = async () => {
+
 
     // 验证验证码
-    if (!emailForm.verificationCode) {
-        EmailformErrors.verificationCode = '请输入验证码';
-        return;
-    } else if (emailForm.verificationCode !== '1234') { // 模拟验证码为1234
-        EmailformErrors.verificationCode = '验证码不正确';
-        return;
+    try {
+        const response = await axios.post(hostname + '/auth/register', {
+            email: emailForm.email,
+            password: formData.password,
+            emailVerifyCode: emailForm.verificationCode
+        });
+
+        if (response.data.code == 200) {
+            ElMessage.success('邮箱验证通过');
+
+            // 存储 
+            const user = {
+                id: response.data.data.id,
+                email: response.data.data.email,
+                accessToken: response.data.tokens[0],
+                refreshToken: response.data.tokens[1]
+            }
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // 跳转到首页
+            router.push('/');
+
+
+        } else {
+            const message = verifyCode(response.data.code)
+            ElMessage.error(message);
+        }
+    } catch (e) {
+        ElMessage.error('注册验证请求失败');
+        console.log(e);
     }
 
 
     // 注册请求
+    // const response = await axios.post('/auth/register', {
 
     // 验证通过，进入下一步
     ElMessage.success('注册成功');
@@ -232,6 +272,8 @@ const verifyEmail = () => {
 const goToLogin = () => {
     router.push('/login');
 };
+
+
 </script>
 
 <template>
@@ -290,10 +332,10 @@ const goToLogin = () => {
                         </div>
                         <div class="error-message" v-if="formErrors.captcha">{{ formErrors.captcha }}</div>
                     </div>
-                   
+
 
                     <div class="form-actions">
-                    
+
                         <button class="next-btn" @click="goToEmail">下一步</button>
                         <button class="login-btn" @click="goToLogin">返回登录</button>
                     </div>
@@ -304,11 +346,12 @@ const goToLogin = () => {
 
             <!-- 步骤2：邮箱验证 -->
             <div v-if="currentStep === 2" class="step-content">
-                
+
                 <div class="form-item">
-                    <label>请验证您注册时使用的邮箱:  <span style="font-size: 12px;display:block;text-align: right;">{{ formData.email }}</span></label>
-                    
-                    
+                    <label>请验证您注册时使用的邮箱: <span style="font-size: 12px;display:block;text-align: right;">{{
+                        formData.email }}</span></label>
+
+
                 </div>
 
                 <div class="form-item verification-code">
@@ -316,7 +359,7 @@ const goToLogin = () => {
                     <div class="verification-input">
                         <input type="text" v-model="emailForm.verificationCode" placeholder="请输入验证码"
                             @focus="EmailformErrors.verificationCode = ''" />
-                        <button class="send-code-btn" @click="sendVerificationCode" :disabled="countdown > 0" >
+                        <button class="send-code-btn" @click="sendVerificationCode" :disabled="countdown > 0">
                             {{ countdown > 0 ? `重新发送(${countdown}s)` : '发送验证码' }}
                         </button>
                     </div>
@@ -339,162 +382,169 @@ const goToLogin = () => {
 <style scoped>
 /* 注册页面的样式 */
 .register-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f0f2f5;
-  background-image: url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
-  background-repeat: no-repeat;
-  background-position: center 110px;
-  background-size: 100%;
-  animation: fadeIn 0.8s ease;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f2f5;
+    background-image: url('https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg');
+    background-repeat: no-repeat;
+    background-position: center 110px;
+    background-size: 100%;
+    animation: fadeIn 0.8s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .register-box {
-  width: 450px;
-  padding: 40px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  animation: slideUp 0.6s ease;
+    width: 450px;
+    padding: 40px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    animation: slideUp 0.6s ease;
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .register-header {
-  text-align: center;
-  margin-bottom: 30px;
+    text-align: center;
+    margin-bottom: 30px;
 }
 
 .register-header h2 {
-  font-size: 28px;
-  color: #1890ff;
-  margin-bottom: 10px;
+    font-size: 28px;
+    color: #1890ff;
+    margin-bottom: 10px;
 }
 
 .register-header p {
-  font-size: 14px;
-  color: #999;
+    font-size: 14px;
+    color: #999;
 }
 
 .register-form {
-  animation: fadeIn 0.8s ease;
+    animation: fadeIn 0.8s ease;
 }
 
 .form-item {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .form-item label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #333;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
 }
 
 .required {
-  color: #f56c6c;
+    color: #f56c6c;
 }
 
 .form-item input {
-  width: 100%;
-  height: 40px;
-  padding: 0 15px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  transition: all 0.3s;
+    width: 100%;
+    height: 40px;
+    padding: 0 15px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    transition: all 0.3s;
 }
 
 .form-item input:focus {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
-  outline: none;
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+    outline: none;
 }
 
 .error-message {
-  color: #f56c6c;
-  font-size: 12px;
-  margin-top: 5px;
+    color: #f56c6c;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
 .captcha-container {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 .captcha-input-container {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 .captcha-input-container input {
-  flex: 1;
-  margin-right: 10px;
+    flex: 1;
+    margin-right: 10px;
 }
 
 .captcha-image {
-  width: 100px;
-  height: 40px;
-  cursor: pointer;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  overflow: hidden;
+    width: 100px;
+    height: 40px;
+    cursor: pointer;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 .captcha-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .form-actions {
-  display: flex;
-  position: relative;
-  top: 20px;
-  flex-direction: column;
-  gap: 15px;
+    display: flex;
+    position: relative;
+    top: 20px;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.register-btn, .login-btn {
-  height: 40px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
+.register-btn,
+.login-btn {
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
 }
 
 .register-btn {
-  background-color: #1890ff;
-  color: white;
-  border: none;
+    background-color: #1890ff;
+    color: white;
+    border: none;
 }
 
 .register-btn:hover {
-  background-color: #40a9ff;
+    background-color: #40a9ff;
 }
 
 .login-btn {
-  background-color: white;
-  color: #1890ff;
-  border: 1px solid #1890ff;
+    background-color: white;
+    color: #1890ff;
+    border: 1px solid #1890ff;
 }
 
 .login-btn:hover {
-  background-color: #f0f7ff;
+    background-color: #f0f7ff;
 }
 
 
