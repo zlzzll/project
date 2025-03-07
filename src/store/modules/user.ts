@@ -4,7 +4,6 @@ import axios from 'axios';
 import host from '../../config/hostname';
 import verifyCode from '../../tools/verifyCode';
 import { ElMessage } from 'element-plus';
-import { el } from 'element-plus/es/locales.mjs';
 
 /**
  * 用户状态管理
@@ -75,7 +74,7 @@ export const useUserStore = defineStore('user', {
 
       this.currentUser = null;
       localStorage.removeItem('user');
-      
+
     },
     /**
      * 初始化用户信息

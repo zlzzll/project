@@ -9,6 +9,7 @@ import ModelFlie from '../views/ModelFlie.vue';
 import Fliemange from '../views/Fliemange.vue';
 import CreateTemplate from '../views/CreateTemplate.vue';
 import CreateFile from '../views/CreateFile.vue';
+import Wrong from '../views/Wrong.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -64,6 +65,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/createfile',
     name: 'CreateFile',
     component: CreateFile
+  },
+  {
+    path: '/wrong',
+    name: 'Wrong',
+    component: Wrong
   }
 ];
 
@@ -77,7 +83,7 @@ router.beforeEach((to, _from, next) => {
   const isAuthenticated = localStorage.getItem('user');
   
   // 不需要身份验证的路由
-  const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email']; //这里必须填路由的name
+  const publicRoutes = ['Login', 'Register', 'ForgotPassword','Email',"Wrong"]; //这里必须填路由的name
   
   if (!publicRoutes.includes(to.name as string) && !isAuthenticated) {
     next({ name: 'Login' });
