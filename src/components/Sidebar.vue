@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+// import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 
@@ -8,7 +8,7 @@ const router = useRouter();
 // 用户存储
 const userStore = useUserStore();
 // 活动菜单项索引
-const activeIndex = ref('1');
+// const activeIndex = ref('1');
 
 // 导航到指定路径
 const navigateTo = (path: string) => {
@@ -41,8 +41,7 @@ const logout = () => {
            />
       </div>
       <p></p>
-      <div style="width: 100px;">
-       {{ userStore.currentUser?.name }}
+      <div style="width: 86px; text-align: center;">{{ userStore.$state.userInfo?.username }}
       </div>
     </div>
 
@@ -77,8 +76,8 @@ const logout = () => {
           />
       </div>
       <div class="user-details">
-        <div class="user-name">{{ userStore.currentUser?.name }}</div>
-        <div class="user-role">{{ userStore.currentUser?.role === 'doctor' ? '医生' : '护士' }}</div>
+        <div class="user-name">{{ userStore.$state.userInfo?.username }}</div>
+        <div class="user-role">{{ userStore.$state.userInfo?.organization }}</div>
       </div>
       <div class="logout" @click="logout">
         <i class="el-icon-switch-button">X</i>

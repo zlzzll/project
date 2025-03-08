@@ -19,7 +19,7 @@ app.use(ElementPlus)
 
 // 如果localStorage中有用户信息，则初始化用户
 const userStore = useUserStore()
-userStore.initUser()
+userStore.updatUser()
 
 // 挂载应用
 app.mount('#app')

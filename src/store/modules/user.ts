@@ -5,6 +5,7 @@ import host from '../../config/hostname';
 import verifyCode from '../../tools/verifyCode';
 import { ElMessage } from 'element-plus';
 import { UserInfo } from '../../types/types';
+import { Ref} from 'vue';
 
 
 /**
@@ -14,7 +15,7 @@ const hostname = host()
 export const useUserStore = defineStore('user', {
   state: () => ({
     currentUser: null as User | null,
-    userInfo: null as UserInfo | null
+    userInfo: null as Ref<UserInfo> | null
     // currentUser: true 
   }),
 
@@ -30,12 +31,22 @@ export const useUserStore = defineStore('user', {
       // 假设邮箱和密码为doctor@126.com 和 password，用于后续测试       
       if (email == 'doctor@126.com' && password == 'password') {
         const user = {
-          id: 'doctor@126.com',
+          id: 23232323,
           email: 'doctor@126.com',
           accessToken: "token1",
           refreshToken: "token2"
         }
+        const userInfo :UserInfo= {
+          id: 23232323,
+          username: '张伟',
+          email: 'doctor@126.com',
+          organization: '技术部',
+          avatarUrl: 'https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain',
+        };
+        this.userInfo = userInfo;
+        this.currentUser = user;
         localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
         return 200
       }
 
@@ -61,13 +72,14 @@ export const useUserStore = defineStore('user', {
 
           try {
             const info = await axios.post(hostname + "/api/user/info", {
-              userid: user.id,
-            })      
+              userId: user.id,
+            })
             if (info.data.code != 200) {
               // ElMessage.error(response.data.msg);
               return response.data.msg;
             }
             if (info.data.data) {
+              this.userInfo = info.data.data;
               localStorage.setItem('userinfo', JSON.stringify(info.data.data));
               return 200
             }
@@ -75,10 +87,10 @@ export const useUserStore = defineStore('user', {
             ElMessage.error("获取用户信息失败");
             return "请求用户信息错误"
           }
-          
+
         } else {
           // ElMessage.error(response.data.msg)
-          return response.data.msg; 
+          return response.data.msg;
         }
 
       } catch (e) {
@@ -93,10 +105,10 @@ export const useUserStore = defineStore('user', {
     async logout() {
       const userItem = localStorage.getItem('user');
       if (userItem !== null) {
-        //反序列化
-        const user = JSON.parse(userItem)
-        const res = await axios.post(`/auth/logout/${user.id}`, {
-          userid: user.id
+        // //反序列化
+        // const user = JSON.parse(userItem)
+        const res = await axios.post(`/auth/logout/${this.$state.currentUser?.id}`, {
+          userId: this.$state.currentUser?.id
         });
         if (res.data.code === 200) {
           ElMessage.success('登出成功');
@@ -116,10 +128,13 @@ export const useUserStore = defineStore('user', {
     /**
      * 初始化用户信息
      */
-    initUser() {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        this.currentUser = JSON.parse(userStr);
+    //更新信息
+    updatUser(){
+      const user = localStorage.getItem('user');
+      const userInfo = localStorage.getItem('userinfo')
+      if (user && userInfo) {
+        this.currentUser = JSON.parse(user);
+        this.userInfo = JSON.parse(userInfo);
       }
     }
   }

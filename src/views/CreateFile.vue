@@ -122,18 +122,7 @@ input:focus, select:focus {
   gap: 0.5em;
 }
 
-.help-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f4f4f5;
-  color: #909399;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: help;
-}
+
 
 .upload-area {
   border: 2px dashed #dcdfe6;

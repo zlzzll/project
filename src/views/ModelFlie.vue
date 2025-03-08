@@ -45,7 +45,6 @@ export default defineComponent({
 
         const applyFilters = () => {
             let result = templateFiles;
-
             if (filters.value.id) {
                 result = result.filter(t => t.id.toString().includes(filters.value.id));
             }
@@ -96,8 +95,6 @@ export default defineComponent({
                 query: {
                     
                     name: template.name,
-                    author: template.createdBy,
-                    date: template.modifyDatetime,
                 }
             });
         };
@@ -239,7 +236,8 @@ export default defineComponent({
                         <th>ID</th>
                         <th>模板</th>
                         <th>作者</th>
-                        <th>分类</th>
+                        <th>分类</th><span class="help-icon" style="position: relative;left: -80px; " title="a类为超级模板，用户不能操作该模板；
+a类模板提交json，上传该模板的文件有严格的格式校验；">?</span>
                         <th>修改时间</th>
 
                     </tr>

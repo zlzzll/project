@@ -22,20 +22,9 @@ export default defineComponent({
         });
 
         // 检查URL参数，如果有则应用筛选条件
-        onMounted(() => {
-            const queryId = route.query.id as string;
-            const queryName = route.query.name as string;
-            const queryAuthor = route.query.author as string;
-            const queryCategory = route.query.category as string;
-            const queryModifyDate = route.query.modifyDate as string;
-
-            if (queryId) filters.value.id = queryId;
-            if (queryName) filters.value.templateName = queryName;
-            if (queryAuthor) filters.value.author = queryAuthor;
-            if (queryCategory) filters.value.category = queryCategory;
-            if (queryModifyDate) filters.value.modifyDate = queryModifyDate;
-
-            
+        onMounted(() => {     
+            const queryName = route.query.name as string;    
+            if (queryName) filters.value.templateName = queryName;  
         });
 
         const filteredTemplates = ref<MyFile[]>(templateFiles);
