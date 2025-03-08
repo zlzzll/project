@@ -80,6 +80,7 @@ const handleFileSelect = (event: Event) => {
     if (file) {
         selectedFile.value = file;
         avatarPreview.value = URL.createObjectURL(file);
+        
         console.log(avatarPreview.value);
     }
 };

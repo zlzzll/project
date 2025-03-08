@@ -1,27 +1,30 @@
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, Ref } from "vue";
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
+import axios from "axios";
+import host from "../config/hostname";
 
+const hostname = host();
 
 
 export default defineComponent({
     name: "FileManagement",
     setup() {
         const router = useRouter();
-        const templateFiles: TemplateFile[] = testdata().templateFiles
+        const templateFiles: Ref<TemplateFile[]> = ref(testdata().templateFiles)
 
         //筛选框内容
         const filters = ref({
-            id: "",
+            id: 0,
             templateName: "",
             author: "",
             category: "",
             modifyDate: "",
         });
 
-        const filteredTemplates = ref<TemplateFile[]>(templateFiles);
+        const filteredTemplates = ref<TemplateFile[]>(templateFiles.value);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -37,6 +40,27 @@ export default defineComponent({
 
         const totalPages = ref(100)
 
+
+        const updatePage =async (currentPage: number,pageSize:number,id?:number,fuzzyTemplateName?:string,authorName?:string,category?:string,updateTimeStart?:number) => {
+            try{
+                const res  = await axios.post(hostname+"/api/template/page",{
+                currentPage,
+                pageSize,
+                id,
+                fuzzyTemplateName,
+                authorName,
+                category,
+                updateTimeStart
+            })
+            templateFiles.value = res.data.data
+            totalPages.value = res.data.totalPage   
+        
+        
+            }catch(e){
+                console.error(e);
+            }
+        };
+
         const parseTemplateDate = (datetime: string) => {
             const [datePart] = datetime.split(' ');
             const [day, month, year] = datePart.split('.');
@@ -44,9 +68,9 @@ export default defineComponent({
         };
 
         const applyFilters = () => {
-            let result = templateFiles;
+            let result = templateFiles.value;
             if (filters.value.id) {
-                result = result.filter(t => t.id.toString().includes(filters.value.id));
+                result = result.filter(t => t.id.toString().includes(filters.value.id.toString()));
             }
 
             if (filters.value.templateName) {
@@ -68,6 +92,7 @@ export default defineComponent({
                     return templateDate.toDateString() === selectedDate.toDateString();
                 });
             }
+            updatePage(currentPage.value,pageSize,filters.value.id,)
 
             filteredTemplates.value = result;
             currentPage.value = 1;
@@ -78,13 +103,13 @@ export default defineComponent({
         };
         const resetFilters = () => {
             filters.value = {
-                id: "",
+                id:0,
                 templateName: "",
                 author: "",
                 category: "",
                 modifyDate: "",
             };
-            filteredTemplates.value = templateFiles;
+            filteredTemplates.value = templateFiles.value;
             currentPage.value = 1;
         };
 
@@ -93,7 +118,6 @@ export default defineComponent({
             router.push({
                 path: '/filemanage',
                 query: {
-
                     name: template.templateName,
                 }
             });
@@ -155,9 +179,22 @@ export default defineComponent({
 
 
         // 检查URL参数，如果有则应用筛选条件
-        onMounted(() => {
+        onMounted(async () => {
+            try{
+                const res =await axios.post(hostname+"/api/template/page",{
+                    currentPage: currentPage.value-1,
+                    pageSize: pageSize
+                })
+                templateFiles.value = res.data.data
+                totalPages.value = res.data.totalPage
+            }catch(e){
+                console.error(e)
+            }
             console.log("加载了")
-        });
+        }); 
+        onUnmounted(()=>{
+            console.log("卸载了")
+        })
 
 
         //暴露数据

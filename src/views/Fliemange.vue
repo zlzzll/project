@@ -44,9 +44,7 @@ export default defineComponent({
             return filteredTemplates.value.slice(start, start + pageSize);
         });
 
-        const totalPages = computed(() =>
-            Math.ceil(filteredTemplates.value.length / pageSize)
-        );
+        const totalPages = ref(100)
 
         const parseTemplateDate = (datetime: string) => {
             const [datePart] = datetime.split(' ');
