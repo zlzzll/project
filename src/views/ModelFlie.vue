@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
+import { defineComponent, ref, computed, onMounted } from "vue";
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
+
 
 
 export default defineComponent({
@@ -11,6 +12,7 @@ export default defineComponent({
         const router = useRouter();
         const templateFiles: TemplateFile[] = testdata().templateFiles
 
+        //筛选框内容
         const filters = ref({
             id: "",
             templateName: "",
@@ -33,9 +35,7 @@ export default defineComponent({
             return filteredTemplates.value.slice(start, start + pageSize);
         });
 
-        const totalPages = computed(() =>
-            Math.ceil(filteredTemplates.value.length / pageSize)
-        );
+        const totalPages = ref(100)
 
         const parseTemplateDate = (datetime: string) => {
             const [datePart] = datetime.split(' ');
@@ -50,11 +50,11 @@ export default defineComponent({
             }
 
             if (filters.value.templateName) {
-                result = result.filter(t => t.name.includes(filters.value.templateName));
+                result = result.filter(t => t.authorName.includes(filters.value.templateName));
             }
 
             if (filters.value.author) {
-                result = result.filter(t => t.createdBy.includes(filters.value.author));
+                result = result.filter(t => t.authorName.includes(filters.value.author));
             }
 
             if (filters.value.category) {
@@ -64,7 +64,7 @@ export default defineComponent({
             if (filters.value.modifyDate) {
                 const selectedDate = new Date(filters.value.modifyDate);
                 result = result.filter(t => {
-                    const templateDate = parseTemplateDate(t.modifyDatetime);
+                    const templateDate = parseTemplateDate(t.updateTime);
                     return templateDate.toDateString() === selectedDate.toDateString();
                 });
             }
@@ -87,18 +87,18 @@ export default defineComponent({
             filteredTemplates.value = templateFiles;
             currentPage.value = 1;
         };
-        
+
         // 跳转到文件管理页面并应用筛选条件
         const goToFileManage = (template: TemplateFile) => {
             router.push({
                 path: '/filemanage',
                 query: {
-                    
-                    name: template.name,
+
+                    name: template.templateName,
                 }
             });
         };
-        
+
         // 页面跳转脚本实现
         function changePage(event: any) {
             const value = event.target.innerText;
@@ -113,7 +113,7 @@ export default defineComponent({
             // 先清空
             inpval.value = ''
             if (currentPage.value > 1) {
-                currentPage.value--                                                             
+                currentPage.value--
                 if (currentPage.value % 4 == 0) {
                     showPage.value = showPage.value - 4
                 }
@@ -130,35 +130,44 @@ export default defineComponent({
             }
         }
 
-        function gotoPage(){
+        function gotoPage() {
             if (inpvals.value == '') {
                 return
             }
             inpval.value = inpvals.value
             // 先清空输入框
             inpvals.value = ''
-           
+
             // 输入判断
-            if (inpval.value <= 0 || inpval.value > totalPages.value ) {
+            if (inpval.value <= 0 || inpval.value > totalPages.value) {
                 return
             }
             currentPage.value = inpval.value
 
             // 在currentPage更新之后，立即要想到更新showPage变量
             if (inpval.value < showPage.value) {
-                showPage.value =(Math.trunc(inpval.value / 4)-1)*4+1
+                showPage.value = (Math.trunc(inpval.value / 4) - 1) * 4 + 1
             }
-            if (inpval.value > showPage.value+3) {
-                showPage.value = Math.trunc(inpval.value / 4)*4+1
+            if (inpval.value > showPage.value + 3) {
+                showPage.value = Math.trunc(inpval.value / 4) * 4 + 1
             }
         }
+
+
+        // 检查URL参数，如果有则应用筛选条件
+        onMounted(() => {
+            console.log("加载了")
+        });
+
+
+        //暴露数据
         return {
             filters,
             paginatedTemplates,
             currentPage,
             showPage,
             goToCreateTemplate,
-            inpval,inpvals,
+            inpval, inpvals,
             totalPages,
             gotoPage,
             applyFilters,
@@ -181,7 +190,8 @@ export default defineComponent({
             <h2>模板文件</h2>
             <p>现存模板如下</p>
 
-            <button style="background: #409eff;color: white;position: relative;left: 1250px;" @click="goToCreateTemplate">创建模板</button>
+            <button style="background: #409eff;color: white;position: relative;left: 1250px;"
+                @click="goToCreateTemplate">创建模板</button>
             <hr style="width: 1350px;">
         </header>
 
@@ -236,8 +246,9 @@ export default defineComponent({
                         <th>ID</th>
                         <th>模板</th>
                         <th>作者</th>
-                        <th>分类</th><span class="help-icon" style="position: relative;left: -80px; " title="a类为超级模板，用户不能操作该模板；
-a类模板提交json，上传该模板的文件有严格的格式校验；">?</span>
+                        <th style="position: relative;top: 10px;">分类<span class="help-icon"
+                                style="position: relative;left: 120px;bottom: 30px; " title="a类为超级模板，用户不能操作该模板；
+a类模板提交json，上传该模板的文件有严格的格式校验；">?</span></th>
                         <th>修改时间</th>
 
                     </tr>
@@ -248,11 +259,12 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
-                        <td>{{ template.name }}</td>
-                        <td>{{ template.createdBy }}</td>
+                        <td>{{ template.templateName }}</td>
+                        <td>{{ template.authorName }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
-                        <td style="width: 100px;">{{ template.modifyDatetime.split(" ")[0] }}
-                            <span style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1] }} AM
+                        <td style="width: 100px;">{{ template.updateTime.split(" ")[0] }}
+                            <span style="font-size: smaller; color: gray;">{{ template.updateTime.split(" ")[1] }}
+                                AM
                             </span>
                         </td>
                         <td style=" width: 50px;height: 50px; ">
@@ -294,19 +306,25 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
 
         <!-- 底部的那个页面跳转按钮 -->
         <div class="pagination" v-if="totalPages > 0">
-            <button  :disabled="currentPage === 1" @click="prevPage" ><</button>
-            <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage}">{{ showPage }}</button>
-            <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
-                :class="{ active: currentPage === showPage + 1 || inpval == showPage+1}">{{ showPage + 1 }}</button>
-            <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
-                :class="{ active: currentPage === showPage + 2 || inpval == showPage+2}">{{ showPage + 2 }}</button>
-            <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
-                :class="{ active: currentPage === showPage + 3 || inpval == showPage+3}">{{ showPage + 3 }}</button>
-            <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
-            <button  :disabled="currentPage === totalPages" @click="nextPage">></button>
-            <div> 
-              <input type="text" style="width: 60px; " v-model="inpvals"> <button @click="gotoPage">Go</button>
-            </div>
+            <button :disabled="currentPage === 1" @click="prevPage">
+                < </button>
+                    <button @click="changePage($event)"
+                        :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
+                    <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
+                        :class="{ active: currentPage === showPage + 1 || inpval == showPage + 1 }">{{ showPage + 1
+                        }}</button>
+                    <button @click="changePage($event)" v-if="showPage + 2 <= totalPages"
+                        :class="{ active: currentPage === showPage + 2 || inpval == showPage + 2 }">{{ showPage + 2
+                        }}</button>
+                    <button @click="changePage($event)" v-if="showPage + 3 <= totalPages"
+                        :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3
+                        }}</button>
+                    <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
+                    <button :disabled="currentPage === totalPages" @click="nextPage">></button>
+                    <div>
+                        <input type="text" style="width: 60px; " v-model="inpvals"> <button
+                            @click="gotoPage">Go</button>
+                    </div>
         </div>
     </div>
 </template>
@@ -319,6 +337,7 @@ button.active {
     color: white;
     /* 白色文字 */
 }
+
 .filter-container {
     padding: 2vw;
     width: 100%;
@@ -326,6 +345,7 @@ button.active {
     margin: 0 auto;
     box-sizing: border-box;
 }
+
 .icon {
     width: 20px;
     height: 20px;

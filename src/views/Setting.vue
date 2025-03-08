@@ -135,7 +135,7 @@ const uploadAvatar = async () => {
                 <label>所属组织</label>
                 <input v-if="isEditing" v-model="userInfo.organization">
                 <span v-else>{{ userInfo.organization }}</span>
-            </div>
+                </div>
 
             <div class="setting-item">
                 <label>邮箱</label>

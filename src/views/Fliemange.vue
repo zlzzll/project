@@ -22,9 +22,9 @@ export default defineComponent({
         });
 
         // 检查URL参数，如果有则应用筛选条件
-        onMounted(() => {     
-            const queryName = route.query.name as string;    
-            if (queryName) filters.value.templateName = queryName;  
+        onMounted(() => {
+            const queryName = route.query.name as string;
+            if (queryName) filters.value.templateName = queryName;
         });
 
         const filteredTemplates = ref<MyFile[]>(templateFiles);
@@ -72,7 +72,7 @@ export default defineComponent({
             }
 
             if (filters.value.author) {
-                result = result.filter(t => t.createdBy.includes(filters.value.author));
+                result = result.filter(t => t.authorName.includes(filters.value.author));
             }
 
             if (filters.value.category) {
@@ -82,7 +82,7 @@ export default defineComponent({
             if (filters.value.modifyDate) {
                 const selectedDate = new Date(filters.value.modifyDate);
                 result = result.filter(t => {
-                    const templateDate = parseTemplateDate(t.modifyDatetime);
+                    const templateDate = parseTemplateDate(t.updateTime);
                     return templateDate.toDateString() === selectedDate.toDateString();
                 });
             }
@@ -290,9 +290,9 @@ export default defineComponent({
                         <td>{{ template.id }}</td>
                         <td>{{ template.filename }}</td>
                         <td>{{ template.templateName }}</td>
-                        <td>{{ template.createdBy }}</td>
-                        <td>{{ template.modifyDatetime.split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ template.modifyDatetime.split(" ")[1]
+                        <td>{{ template.authorName }}</td>
+                        <td>{{ template.updateTime.split(" ")[0] }}
+                            <div style="font-size: smaller; color: gray;">{{ template.updateTime.split(" ")[1]
                             }} AM</div>
                         </td>
                         <td class="action-cell">
@@ -330,7 +330,7 @@ export default defineComponent({
             </table>
         </div>
 
-        <div class="pagination" v-if="totalPages > 0" >
+        <div class="pagination" v-if="totalPages > 0">
             <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
             <button @click="changePage($event)" :class="{ active: showPage === currentPage || inpval == showPage }">{{
                 showPage }}</button>
@@ -396,7 +396,7 @@ button.active {
     padding: 2vw;
     width: 100%;
     max-width: 1400px;
-    margin: 0 auto; 
+    margin: 0 auto;
     box-sizing: border-box;
 }
 

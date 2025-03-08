@@ -1,35 +1,36 @@
 // 用户接口
 export interface User {
   id: number,
-  email:string,
+  email: string,
   accessToken: string,
   refreshToken: string
-  }
-  
+}
+
 // 用户信息接口
-export interface UserInfo{
+export interface UserInfo {
   id: number,
-  username:string,
-  email:string,
-  organization:string,
-  avatarUrl:string
+  username: string,
+  email: string,
+  organization: string,
+  avatarUrl: string
 }
 
 // 模板文件接口
-export  interface TemplateFile {
-    id: number;
-    name: string;
-    createdBy: string;
-    category: string;
-    modifyDatetime: string;
+export interface TemplateFile {
+  id: number;
+  templateName: string;
+  authorId: number;
+  authorName: string;
+  category: string;
+  updateTime: string;
 }
 
 // 文件接口
 export interface MyFile {
   id: number;
-  filename:string;
+  filename: string;
   templateName: string;
-  createdBy: string;
+  authorName: string;
   category: string;
-  modifyDatetime: string;
+  updateTime: string;
 }
