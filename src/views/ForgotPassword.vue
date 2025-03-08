@@ -70,7 +70,7 @@ const sendVerificationCode = async () => {
       }, 1000);
 
     } else {
-      const message = verifyCode(response.data.code)
+      const message = response.data.msg;
       ElMessage.error(message);
     }
     // 发送验证码   

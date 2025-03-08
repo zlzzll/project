@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store';
 import { ElMessage } from 'element-plus';
-import verifyCode from '../tools/verifyCode';
+
 
 // 路由器实例
 const router = useRouter();
@@ -30,8 +30,9 @@ const handleLogin = async () => {
       ElMessage.success('登录成功');
       router.push('/modelfile');
     } else{
-      const message = verifyCode(res)
-      ElMessage.error(message);
+      //请求失败的返回
+      
+      ElMessage.error(res);
     }
   } catch (error) {
     ElMessage.error('登录失败，请重试');
@@ -59,7 +60,7 @@ const handleForgotPassword = () => {
     <div class="login-box">
       <div class="login-header">
         <h2>电子病历撰写系统</h2>
-        <p>病历撰写数字化 平台</p>
+        <p>病历撰写数字化平台</p>
       </div>
       <div class="login-form">
         <div class="form-item">

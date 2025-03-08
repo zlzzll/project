@@ -8,10 +8,11 @@ export interface User {
   
 // 用户信息接口
 export interface UserInfo{
-  name:string,
+  id: number,
+  username:string,
   email:string,
-  role:string,
-  avatar:string
+  organization:string,
+  avatarUrl:string
 }
 
 // 模板文件接口

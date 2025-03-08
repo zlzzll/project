@@ -1,7 +1,7 @@
 <template>
     <div class="not-found-container">
       <div class="content">
-        <div class="error-code">404</div>
+        <div class="error-code">401</div>
         <h1 class="title">页面迷路了</h1>
         <p class="description">
           我们似乎找不到您要访问的页面<br>

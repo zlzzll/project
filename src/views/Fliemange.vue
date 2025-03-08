@@ -35,10 +35,7 @@ export default defineComponent({
             if (queryCategory) filters.value.category = queryCategory;
             if (queryModifyDate) filters.value.modifyDate = queryModifyDate;
 
-            // 如果有任何筛选条件，立即应用
-            if (queryId || queryName || queryAuthor || queryCategory) {
-                applyFilters();
-            }
+            
         });
 
         const filteredTemplates = ref<MyFile[]>(templateFiles);
@@ -292,7 +289,6 @@ export default defineComponent({
                         <th>文档名</th>
                         <th>模板</th>
                         <th>作者</th>
-
                         <th>修改时间</th>
                         <th></th>
                     </tr>

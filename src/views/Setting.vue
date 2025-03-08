@@ -1,330 +1,294 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import axios from 'axios';
+import { UserInfo } from '../types/types';
 
-interface EditData {
-    field: 'username' | 'organization' | 'email';
-    value: string;
-}
-
-// 用户信息
-const userInfo = ref({
-    username: '张伟',
-    organization: '技术部',
-    email: 'johndoe@example.com',
+const userInfo = ref<UserInfo>({
+  id: 21233,
+  username: '张伟',
+  email: 'doctor@126.com',
+  organization: '技术部',
+  avatarUrl: 'https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain',
 });
 
-// 是否显示编辑弹窗
-const showDialog = ref(false);
+const isEditing = ref(false);
+const tempUserInfo = ref({ username: '', organization: '' });
+const showAvatarDialog = ref(false);
+const selectedFile = ref<File | null>(null);
+const avatarPreview = ref('');
 
-// 当前编辑的数据
-const editData = ref<EditData>({ field: 'username', value: '' });
-
-// 临时值
-const tempValue = ref('');
-
-// 是否显示文件上传窗口
-const fileLoading = ref(false);
-
-// 打开编辑器
-const openEditor = (field: EditData['field'], value: string) => {
-    editData.value = { field, value };
-    tempValue.value = value;
-    showDialog.value = true;
+// 进入编辑模式
+const enterEditMode = () => {
+  tempUserInfo.value = {
+    username: userInfo.value.username,
+    organization: userInfo.value.organization
+  };
+  isEditing.value = true;
 };
 
-// 保存编辑内容
-const saveEdit = () => {
-    userInfo.value[editData.value.field] = tempValue.value;
-    showDialog.value = false;
+// 保存用户信息
+const saveUserInfo = async () => {
+  try {
+    // 调用更新用户信息接口
+    await axios.put('/api/user/info', {
+      username: tempUserInfo.value.username,
+      organization: tempUserInfo.value.organization
+    });
+    
+    userInfo.value.username = tempUserInfo.value.username;
+    userInfo.value.organization = tempUserInfo.value.organization;
+    isEditing.value = false;
+  } catch (error) {
+    console.error('保存失败:', error);
+  }
 };
 
-// 打开文件上传功能
-const openFileUpload = () => {
-    fileLoading.value = true;
+// 打开头像上传对话框
+const openAvatarDialog = () => {
+  showAvatarDialog.value = true;
+  selectedFile.value = null;
+  avatarPreview.value = '';
 };
 
-// 处理文件上传
-const handleFileChange = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-            // 更新头像 URL
-            (document.querySelector('.setting-icon') as HTMLImageElement).src = e.target?.result as string;
-        };
-        reader.readAsDataURL(file);
-    }
+// 处理文件选择
+const handleFileSelect = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (file) {
+    selectedFile.value = file;
+    avatarPreview.value = URL.createObjectURL(file);
+  }
 };
 
-// 关闭文件上传窗口
-const closeFileUpload = () => {
-    fileLoading.value = false;
+// 上传头像
+const uploadAvatar = async () => {
+  if (!selectedFile.value) return;
+
+  const formData = new FormData();
+  formData.append('multipartFile', selectedFile.value);
+
+  try {
+    // 调用头像上传接口
+    const response = await axios.post('/api/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    userInfo.value.avatarUrl = response.data.url;
+    showAvatarDialog.value = false;
+  } catch (error) {
+    console.error('头像上传失败:', error);
+  }
 };
 </script>
 
 <template>
-    <div class="settings-container">
-        <h2>设置</h2>
-        <div class="setting-item">
-            <div class="label">头像：</div>
-            <div style="flex: 1;">
-                <img
-                    class="setting-icon"
-                    src="https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain"
-                    alt="User Avatar"
-                />
-            </div>            
-            <button class="edit-btn" @click="openFileUpload">编辑</button>
-
-        </div>
-
-        <!-- 设置项列表 -->
-        <div class="setting-item">
-            <div class="label">用户名：</div>
-            <div class="value">{{ userInfo.username }}</div>
-            <button class="edit-btn" @click="openEditor('username', userInfo.username)">编辑</button>
-        </div>
-
-        <div class="setting-item">
-            <div class="label">所属组织：</div>
-            <div class="value">{{ userInfo.organization }}</div>
-            <button class="edit-btn" @click="openEditor('organization', userInfo.organization)">编辑</button>
-        </div>
-
-        <div class="setting-item">
-            <div class="label">邮箱：</div>
-            <div class="value">{{ userInfo.email }}</div>
-            <button class="edit-btn" @click="openEditor('email', userInfo.email)">编辑</button>
-        </div>
-
-        <div class="setting-save">
-            <button class="save-btn" @click="saveEdit">保存</button>
-        </div>
-
-        <!-- 权限管理模块 -->
-            <!-- <div class="permission-section">
-                <h3>权限管理</h3>
-                <button class="permission-btn">管理权限</button>
-            </div> -->
-
-        <!-- 编辑弹窗 -->
-        <div v-if="showDialog" class="edit-dialog-mask">
-            <div class="edit-dialog">
-                <h3>
-                    {{
-                        editData.field === 'username'
-                            ? '编辑用户名'
-                            : editData.field === 'organization'
-                            ? '编辑所属组织'
-                            : '编辑邮箱'
-                    }}
-                </h3>
-                <input
-                    v-model="tempValue"
-                    class="edit-input"
-                    :type="editData.field === 'email' ? 'email' : 'text'"
-                />
-                <div class="dialog-buttons">
-                    <button class="cancel-btn" @click="showDialog = false">取消</button>
-                    <button class="confirm-btn" @click="saveEdit">保存</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 文件上传窗口 -->
-        <div v-if="fileLoading" class="edit-dialog-mask">
-            <div class="edit-dialog">
-                <h3>编辑头像</h3>
-                <input type="file" class="file-input" @change="handleFileChange" />
-                <div class="dialog-buttons">
-                    <button class="cancel-btn" @click="closeFileUpload">取消</button>
-                    <button class="confirm-btn" @click="closeFileUpload">完成</button>
-                </div>
-            </div>
-        </div>
+  <div class="settings-container">
+    <h2>个人设置</h2>
+    
+    <!-- 头像编辑 -->
+    <div class="setting-item avatar-section">
+      <img class="avatar" :src="userInfo.avatarUrl" alt="用户头像"/>
+      <button class="edit-button" @click="openAvatarDialog">更换头像</button>
     </div>
+
+    <!-- 用户信息编辑 -->
+    <div class="info-section">
+      <div class="setting-item">
+        <label>用户名</label>
+        <input v-if="isEditing" v-model="tempUserInfo.username">
+        <span v-else>{{ userInfo.username }}</span>
+      </div>
+
+      <div class="setting-item">
+        <label>所属组织</label>
+        <input v-if="isEditing" v-model="tempUserInfo.organization">
+        <span v-else>{{ userInfo.organization }}</span>
+      </div>
+
+      <div class="setting-item">
+        <label>邮箱</label>
+        <span>{{ userInfo.email }}</span>
+      </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+      <template v-if="!isEditing">
+        <button class="primary-button" @click="enterEditMode">编辑信息</button>
+      </template>
+      <template v-else>
+        <button class="secondary-button" @click="isEditing = false">取消</button>
+        <button class="primary-button" @click="saveUserInfo">保存修改</button>
+      </template>
+    </div>
+
+    <!-- 头像上传对话框 -->
+    <div v-if="showAvatarDialog" class="dialog-mask">
+      <div class="dialog-content">
+        <h3>上传新头像</h3>
+        <div class="avatar-preview">
+          <img v-if="avatarPreview" :src="avatarPreview" alt="预览"/>
+          <div v-else class="placeholder">选择图片预览</div>
+        </div>
+        <label class="file-upload">
+          <input type="file" accept="image/*" @change="handleFileSelect">
+          选择文件
+        </label>
+        <div class="dialog-actions">
+          <button @click="showAvatarDialog = false">取消</button>
+          <button :disabled="!selectedFile" @click="uploadAvatar">上传</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .settings-container {
-    padding: 32px;
-    background-color: #f5f6f7;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
-    color: #1a1a1a;
-    margin-bottom: 32px;
-    font-size: 24px;
-}
-
-.setting-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    object-fit: cover;
+  color: #1a1a1a;
+  margin-bottom: 2rem;
 }
 
 .setting-item {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 20px;
-    margin-bottom: 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
-.label {
-    width: 120px;
-    color: #666;
-    font-weight: 500;
+.setting-item label {
+  width: 120px;
+  color: #666;
+  font-weight: 500;
 }
 
-.value {
-    flex: 1;
-    color: #333;
-    margin: 0 20px;
+.avatar-section {
+  flex-direction: column;
+  align-items: flex-center;
+  gap: 1rem;
 }
 
-.edit-btn {
-    display: flex;
-    background: #f0f2f5;
-    color: #1677ff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e9ecef;
 }
 
-.edit-btn:hover {
-    background: #1677ff;
-    color: white;
+.info-section {
+  margin: 2rem 0;
 }
 
-.permission-section {
-    margin-top: 40px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #aecdec;
+  border-radius: 4px;
+  font-size: 1rem;
 }
 
-.permission-section h3 {
-    color: #1a1a1a;
-    margin-bottom: 16px;
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
-.permission-btn {
-    background: #1677ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: opacity 0.2s;
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.permission-btn:hover {
-    opacity: 0.85;
+.primary-button {
+  background: #1677ff;
+  color: white;
 }
 
-.setting-save {
-    position: relative;
-    left: 42%;
-    margin-top: 20px;
+.primary-button:hover {
+  background: #1456cb;
 }
 
-.save-btn {
-    width: 220px;
-    background: #1677ff;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+.secondary-button {
+  background: #f0f2f5;
+  color: #666;
 }
 
-/* 编辑弹窗样式 */
-.edit-dialog-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+.secondary-button:hover {
+  background: #e5e7eb;
 }
 
-.edit-dialog {
-    background: white;
-    padding: 24px;
-    border-radius: 8px;
-    width: 400px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.dialog-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.edit-dialog h3 {
-    margin-bottom: 20px;
-    color: #1a1a1a;
+.dialog-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px;
 }
 
-.edit-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 24px;
-    font-size: 14px;
+.avatar-preview {
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #ced4da;
+  margin: 1rem auto;
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-.dialog-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.cancel-btn,
-.confirm-btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
 }
 
-.cancel-btn {
-    background: #f0f2f5;
-    color: #666;
+.file-upload {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #f0f2f5;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 1rem 0;
 }
 
-.cancel-btn:hover {
-    background: #e5e7eb;
+.file-upload input {
+  display: none;
 }
 
-.confirm-btn {
-    background: #1677ff;
-    color: white;
-}
-
-.confirm-btn:hover {
-    opacity: 0.85;
-}
-
-/* 文件上传样式 */
-.file-input {
-    display: block;
-    margin: 10px 0;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-    box-sizing: border-box;
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 </style>

@@ -1,4 +1,10 @@
-export default function(code:any) : string{
+import { useRouter } from "vue-router"
+
+// 获取路由器
+const router = useRouter()
+
+
+export default function (code:any) : string{
     if(code == 1009001){
         return  "登录失败"
     }
@@ -25,7 +31,13 @@ export default function(code:any) : string{
     }
     else if (code == 1009012){
         return"邮箱验证码生成异常"
-    }else{
+    }
+    else if (code == 401){
+        router.push('/wrong')
+        return "请求返回错误"
+    }
+    else{
+        router.push('/wrong')
         return `未知错误：${code}`
     }
 }

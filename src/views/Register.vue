@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
 import host from '../config/hostname';
-import verifyCode from '../tools/verifyCode';
+
 
 //请求的主地址
 const hostname = host()
@@ -207,7 +207,7 @@ const sendVerificationCode = async () => {
             }, 1000);
 
         } else {
-            const message = verifyCode(response.data.code)
+            const message = response.data.msg;
             ElMessage.error(message);
         }
         // 发送验证码   
@@ -249,7 +249,7 @@ const verifyEmail = async () => {
 
 
         } else {
-            const message = verifyCode(response.data.code)
+            const message = response.data.msg;
             ElMessage.error(message);
         }
     } catch (e) {
