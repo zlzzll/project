@@ -28,9 +28,10 @@ export interface TemplateFile {
 // 文件接口
 export interface MyFile {
   id: number;
-  filename: string;
+  templateId:number;    
+  aiCaseName: string;
   templateName: string;
+  authorId: number;
   authorName: string;
-  category: string;
-  updateTime: string;
+  updateTime: number;
 }

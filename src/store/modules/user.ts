@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
         }
         const userInfo :UserInfo= {
           id: 23232323,
-          username: '张伟',
+          username: '张康',
           email: 'doctor@126.com',
           organization: '技术部',
           avatarUrl: 'https://tse3-mm.cn.bing.net/th/id/OIP-C.JCEcaQJVR_vC2kgt6BGZlAAAAA?rs=1&pid=ImgDetMain',

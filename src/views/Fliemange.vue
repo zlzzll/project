@@ -1,23 +1,30 @@
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+import { defineComponent, ref, computed, onMounted, watch, onUnmounted, Ref } from "vue";
 import { useRoute } from 'vue-router';
 import testdata from '../data/data';
 import { MyFile } from "../types/types";
 import router from "../router";
+import host from "../config/hostname";
+import { ElMessage } from 'element-plus';
+import { useUserStore } from "../store";
+import axios from "axios";
+import formatDate from "../tools/formatDate";
 
+const userId = ref()
+const hostname = host();
 
 export default defineComponent({
     name: "FileManagement",
     setup() {
         const route = useRoute();
-        const templateFiles: MyFile[] = testdata().fileData;
+        const MyFiles: Ref<MyFile[]> = ref(testdata().fileData)
 
         const filters = ref({
-            id: "",
+            id: "", //文件id
             filename: "",
-            templateName: "",
-            author: "",
-            category: "",
+            templateName: "", //关联模板名
+            author: "", //模板作者
+            //都是自己的文件，不需要判断是不是a类型，是不是能删除
             modifyDate: "",
         });
 
@@ -27,7 +34,7 @@ export default defineComponent({
             if (queryName) filters.value.templateName = queryName;
         });
 
-        const filteredTemplates = ref<MyFile[]>(templateFiles);
+        const filteredTemplates = ref<MyFile[]>(MyFiles.value);
         const currentPage = ref(1);
         const showPage = ref(1);
         const pageSize = 10;
@@ -46,46 +53,17 @@ export default defineComponent({
 
         const totalPages = ref(100)
 
-        const parseTemplateDate = (datetime: string) => {
-            const [datePart] = datetime.split(' ');
-            const [day, month, year] = datePart.split('.');
-            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        };
-
+        //日期处理函数，将时间戳转化为具体对应的年月日以及精确的AM和PM
+        // 日期处理函数
+       
         const gotoFileCreate = () => {
             router.push('/createfile');
         };
         const applyFilters = () => {
-            let result = templateFiles;
+            let result = MyFiles;
 
-            if (filters.value.id) {
-                result = result.filter(t => t.id.toString().includes(filters.value.id));
-            }
-            if (filters.value.filename) {
-                result = result.filter(t => t.filename.includes(filters.value.filename));
-            }
 
-            if (filters.value.templateName) {
-                result = result.filter(t => t.templateName.includes(filters.value.templateName));
-            }
-
-            if (filters.value.author) {
-                result = result.filter(t => t.authorName.includes(filters.value.author));
-            }
-
-            if (filters.value.category) {
-                result = result.filter(t => t.category === filters.value.category);
-            }
-
-            if (filters.value.modifyDate) {
-                const selectedDate = new Date(filters.value.modifyDate);
-                result = result.filter(t => {
-                    const templateDate = parseTemplateDate(t.updateTime);
-                    return templateDate.toDateString() === selectedDate.toDateString();
-                });
-            }
-
-            filteredTemplates.value = result;
+            filteredTemplates.value = result.value;
             currentPage.value = 1;
         };
 
@@ -95,10 +73,9 @@ export default defineComponent({
                 filename: "",
                 templateName: "",
                 author: "",
-                category: "",
                 modifyDate: "",
             };
-            filteredTemplates.value = templateFiles;
+            filteredTemplates.value = MyFiles.value;
             currentPage.value = 1;
         };
 
@@ -190,6 +167,70 @@ export default defineComponent({
             }
         }
 
+        //更新页面的函数
+        const updatePage = async (currentPage: number, pageSize: number, id?: number, fuzzyFileName?: string, fuzzyTemplateName?: string, authorName?: string, updateTimeStart?: number) => {
+            const configData: any = {
+                currentPage,
+                pageSize
+            };
+
+            // 检查每个可选参数是否被传入，如果传入则添加到 configData
+            if (id !== undefined) configData.id = id;
+            if (fuzzyFileName !== undefined) configData.fuzzyFileName = fuzzyTemplateName;
+            if (authorName !== undefined) configData.authorName = authorName;
+            if (fuzzyTemplateName !== undefined) configData.fuzzyTemplateName = fuzzyTemplateName;
+            if (updateTimeStart !== undefined) configData.updateTimeStart = updateTimeStart;
+
+            try {
+
+
+                const res = await axios.post(hostname + "/api/ai_case/page", configData)
+                if (res.data.code != 200) {
+                    ElMessage.error(res.data.msg)
+                    return;
+                }
+                MyFiles.value = res.data.data
+                totalPages.value = res.data.totalPage
+
+
+            } catch (e) {
+                ElMessage.error("网络请求失败")
+                console.log("data:" + configData)
+                console.error(e);
+            }
+        };
+        // 监听 currentPage 的变化，随时更新页面数据
+        watch(
+            () => currentPage.value,
+            (newPage, oldPage) => {
+                if (oldPage != undefined) {
+                    console.log(`页码从 ${oldPage} 变为 ${newPage}`);
+                    updatePage(newPage, pageSize);
+                }
+            },
+            { immediate: true } // 立即执行一次，确保初始值也被处理
+        );
+        // 挂载时候发请求加载初始页面
+        onMounted(async () => {
+            const userStore = useUserStore();
+            userId.value = userStore.$state.currentUser?.id
+            console.log(currentPage.value)
+            try {
+                const res = await axios.post(hostname + "/api/template/page", {
+                    currentPage: currentPage.value - 1,
+                    pageSize: pageSize
+                })
+                MyFiles.value = res.data.data
+                totalPages.value = res.data.totalPage
+            } catch (e) {
+                console.error(e)
+            }
+            console.log("加载了初始的第一页数据")
+        });
+        onUnmounted(() => {
+            console.log("卸载了")
+        })
+
 
 
         return {
@@ -208,6 +249,7 @@ export default defineComponent({
             downloadFile,
             renameFile,
             gotoPage,
+            formatDate,
             applyFilters,
             resetFilters,
             changePage,
@@ -286,12 +328,13 @@ export default defineComponent({
                     </tr>
                     <tr v-else v-for="template in paginatedTemplates" :key="template.id">
                         <td>{{ template.id }}</td>
-                        <td>{{ template.filename }}</td>
+                        <td>{{ template.aiCaseName }}</td>
                         <td>{{ template.templateName }}</td>
                         <td>{{ template.authorName }}</td>
-                        <td>{{ template.updateTime.split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ template.updateTime.split(" ")[1]
-                            }} AM</div>
+                        <td>{{ formatDate(template.updateTime).split(" ")[0] }}
+                            <div style="font-size: smaller; color: gray;">{{ formatDate(template.updateTime).split(" ")[1]
+                            }} {{ formatDate(template.updateTime).split(" ")[2]
+                        }} </div>
                         </td>
                         <td class="action-cell">
                             <div class="act">
@@ -299,8 +342,8 @@ export default defineComponent({
                                     <i class="dropdown-icon">▼</i>
                                 </button>
                                 <div class="action-menu" v-if="showActionMenu === template.id">
-                                    <div v-if="template.category == `b类`" class="action-item"
-                                        style="background-color:orangered;" @click="deleteFile(template.id)">
+                                    <div class="action-item" style="background-color:orangered;"
+                                        @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>删除</span>
                                     </div>
@@ -314,8 +357,8 @@ export default defineComponent({
                                         <i class="download-icon"></i>
                                         <span>下载</span>
                                     </div>
-                                    <div v-if="template.category == `b类`" class="action-item "
-                                        style="background-color:greenyellow;" @click="renameFile(template.id)">
+                                    <div class="action-item " style="background-color:greenyellow;"
+                                        @click="renameFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>重命名</span>
                                     </div>
@@ -546,7 +589,7 @@ td {
 .action-menu {
     position: absolute;
     top: 100%;
-    right: -10px;
+    right: -30px;
     width: 120px;
     background: white;
     border-radius: 4px;

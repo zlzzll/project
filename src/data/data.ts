@@ -5,11 +5,15 @@ export default function testdata() {
   const templateFiles: TemplateFile[] = [
     {
       "id": 205198387, "templateName": "陆军军医大学附属医院病历", "authorName": "张康", "category": "a类", "updateTime": "24.12.2024 11:36 AM",
-      authorId: 0
+      authorId: 23232323
     },
     {
       "id": 205198388, "templateName": "陆军军医大学附属医院病历", "authorName": "张康", "category": "b类", "updateTime": "24.12.2024 11:36 AM",
-      authorId: 0
+      authorId: 23232323
+    },
+    {
+      "id": 205198488, "templateName": "空军军医大学附属医院病历", "authorName": "张康", "category": "b类", "updateTime": "24.12.2024 11:36 AM",
+      authorId: 23232323
     },
     {
       "id": 205198389, "templateName": "陆军军医大学附属医院病历", "authorName": "李明", "category": "a类", "updateTime": "24.12.2024 11:37 AM",
@@ -182,15 +186,61 @@ export default function testdata() {
   ]
 
   const fileData: MyFile[] = [
-    { id: 205198431, filename: 'template1.docx', templateName: '陆军军医大学附属医院病历	', authorName: '张康', category: 'a类', updateTime: '24.12.2024 12:19 PM' },
-    { id: 205198432, filename: 'template2.docx', templateName: '陆军军医大学附属医院病历	', authorName: '张康', category: 'b类', updateTime: '24.12.2024 12:20 PM' },
-    { id: 205198433, filename: 'template3.docx', templateName: '陆军军医大学附属医院病历	', authorName: '张康', category: 'a类', updateTime: '24.12.2024 12:21 PM' },
-    { id: 205198434, filename: 'template4.docx', templateName: '陆军军医大学附属医院病历  ', authorName: '张康', category: 'b类', updateTime: '24.12.2024 12:22 PM' },
-    { id: 205198435, filename: 'template5.docx', templateName: '陆军军医大学附属医院病历  ', authorName: '王伟', category: 'a类', updateTime: '24.12.2024 12:23 PM' },
-    { id: 205198436, filename: 'template6.docx', templateName: '南洋理工大学大学附属医院病历  ', authorName: '王伟', category: 'a类', updateTime: '24.12.2024 12:23 PM' },
-
-
-  ]
+    {
+      id: 1, // 随机生成的唯一ID
+      templateId: 205198431,
+      aiCaseName: "案例1",
+      templateName: "陆军军医大学附属医院病历",
+      authorId: 101,
+      authorName: "张康",
+      updateTime: 1728641445000,
+    },
+    {
+      id: 2,
+      templateId: 205198432,
+      aiCaseName: "案例2",
+      templateName: "陆军军医大学附属医院病历",
+      authorId: 101,
+      authorName: "张康",
+      updateTime: 1728641445000,
+    },
+    {
+      id: 3,
+      templateId: 205198433,
+      aiCaseName: "案例3",
+      templateName: "陆军军医大学附属医院病历",
+      authorId: 101,
+      authorName: "张康",
+      updateTime: 1728641445000,
+    },
+    {
+      id: 4,
+      templateId: 205198434,
+      aiCaseName: "案例4",
+      templateName: "陆军军医大学附属医院病历",
+      authorId: 101,
+      authorName: "张康",
+      updateTime: 1728641445000,
+    },
+    {
+      id: 5,
+      templateId: 205198435,
+      aiCaseName: "案例5",
+      templateName: "陆军军医大学附属医院病历",
+      authorId: 102,
+      authorName: "王伟",
+      updateTime: 1728641445000,
+    },
+    {
+      id: 6,
+      templateId: 205198436,
+      aiCaseName: "案例6",
+      templateName: "南洋理工大学大学附属医院病历",
+      authorId: 102,
+      authorName: "王伟",
+      updateTime: 1728641445000,
+    },
+  ];
   // Sort the data by the modify datetime in descending orde
   return { templateFiles, fileData }
 }

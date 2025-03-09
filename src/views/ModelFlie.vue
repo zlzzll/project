@@ -1,11 +1,14 @@
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, onUnmounted, Ref } from "vue";
+import { defineComponent, ref, computed, onMounted, onUnmounted, Ref, watch } from "vue";
 import { useRouter } from 'vue-router';
 import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
 import axios from "axios";
 import host from "../config/hostname";
+import { ElMessage } from 'element-plus';
+import { useUserStore } from "../store";
 
+const userId = ref()
 const hostname = host();
 
 
@@ -17,7 +20,7 @@ export default defineComponent({
 
         //筛选框内容
         const filters = ref({
-            id: 0,
+            id: "",
             templateName: "",
             author: "",
             category: "",
@@ -41,22 +44,31 @@ export default defineComponent({
         const totalPages = ref(100)
 
 
-        const updatePage =async (currentPage: number,pageSize:number,id?:number,fuzzyTemplateName?:string,authorName?:string,category?:string,updateTimeStart?:number) => {
-            try{
-                const res  = await axios.post(hostname+"/api/template/page",{
+        const updatePage = async (currentPage: number, pageSize: number, id?: number, fuzzyTemplateName?: string, authorName?: string, category?: string, updateTimeStart?: number) => {
+            const configData: any = {
                 currentPage,
-                pageSize,
-                id,
-                fuzzyTemplateName,
-                authorName,
-                category,
-                updateTimeStart
-            })
-            templateFiles.value = res.data.data
-            totalPages.value = res.data.totalPage   
-        
-        
-            }catch(e){
+                pageSize
+            };
+
+            // 检查每个可选参数是否被传入，如果传入则添加到 configData
+            if (id !== undefined) configData.id = id;
+            if (fuzzyTemplateName !== undefined) configData.fuzzyTemplateName = fuzzyTemplateName;
+            if (authorName !== undefined) configData.authorName = authorName;
+            if (category !== undefined) configData.category = category;
+            if (updateTimeStart !== undefined) configData.updateTimeStart = updateTimeStart;
+
+            try {
+                const res = await axios.post(hostname + "/api/template/page", configData)
+                if (res.data.code != 200) {
+                    ElMessage.error(res.data.msg)
+                    return;
+                }
+                templateFiles.value = res.data.data
+                totalPages.value = res.data.totalPage
+
+
+            } catch (e) {
+                ElMessage.error("网络请求失败")
                 console.error(e);
             }
         };
@@ -68,33 +80,13 @@ export default defineComponent({
         };
 
         const applyFilters = () => {
-            let result = templateFiles.value;
-            if (filters.value.id) {
-                result = result.filter(t => t.id.toString().includes(filters.value.id.toString()));
+            if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
+                console.log(filters.value)
+                updatePage(currentPage.value, pageSize, Number(filters.value.id), filters.value.author, filters.value.category, filters.value.modifyDate)
             }
 
-            if (filters.value.templateName) {
-                result = result.filter(t => t.authorName.includes(filters.value.templateName));
-            }
 
-            if (filters.value.author) {
-                result = result.filter(t => t.authorName.includes(filters.value.author));
-            }
-
-            if (filters.value.category) {
-                result = result.filter(t => t.category === filters.value.category);
-            }
-
-            if (filters.value.modifyDate) {
-                const selectedDate = new Date(filters.value.modifyDate);
-                result = result.filter(t => {
-                    const templateDate = parseTemplateDate(t.updateTime);
-                    return templateDate.toDateString() === selectedDate.toDateString();
-                });
-            }
-            updatePage(currentPage.value,pageSize,filters.value.id,)
-
-            filteredTemplates.value = result;
+            // filteredTemplates.value = result;
             currentPage.value = 1;
         };
 
@@ -103,7 +95,7 @@ export default defineComponent({
         };
         const resetFilters = () => {
             filters.value = {
-                id:0,
+                id: "",
                 templateName: "",
                 author: "",
                 category: "",
@@ -123,13 +115,23 @@ export default defineComponent({
             });
         };
 
+        const shouldShow = ref()
+        const showMenu = (id: number) => {
+            if (shouldShow.value === id) {
+                shouldShow.value = null;
+            } else {
+                shouldShow.value = id;
+            }
+        }
+
         // 页面跳转脚本实现
         function changePage(event: any) {
             const value = event.target.innerText;
 
             // 注意这里innerText是字符串，直接赋值会导致数据类型变化
             currentPage.value = Number(value)
-            console.log('Clicked value:', value); // 输出: Clicked value: 1
+
+            // console.log('Clicked value:', value); // 输出: Clicked value: 1
 
         }
 
@@ -138,16 +140,19 @@ export default defineComponent({
             inpval.value = ''
             if (currentPage.value > 1) {
                 currentPage.value--
+
                 if (currentPage.value % 4 == 0) {
                     showPage.value = showPage.value - 4
                 }
             }
+
         }
         function nextPage() {
             // 先清空
             inpval.value = ''
             if (currentPage.value < totalPages.value) {
                 currentPage.value++
+
                 if (currentPage.value >= showPage.value + 4) {
                     showPage.value = currentPage.value
                 }
@@ -178,30 +183,49 @@ export default defineComponent({
         }
 
 
-        // 检查URL参数，如果有则应用筛选条件
+
+        // 监听 currentPage 的变化，随时更新页面数据
+        watch(
+            () => currentPage.value,
+            (newPage, oldPage) => {
+                if (oldPage != undefined) {
+                    console.log(`页码从 ${oldPage} 变为 ${newPage}`);
+                    updatePage(newPage, pageSize);
+                }
+            },
+            { immediate: true } // 立即执行一次，确保初始值也被处理
+        );
+        // 挂载时候发请求加载初始页面
         onMounted(async () => {
-            try{
-                const res =await axios.post(hostname+"/api/template/page",{
-                    currentPage: currentPage.value-1,
+            const userStore = useUserStore();
+            userId.value = userStore.$state.currentUser?.id
+            console.log(currentPage.value)
+            try {
+                const res = await axios.post(hostname + "/api/template/page", {
+                    currentPage: currentPage.value - 1,
                     pageSize: pageSize
                 })
                 templateFiles.value = res.data.data
                 totalPages.value = res.data.totalPage
-            }catch(e){
+            } catch (e) {
                 console.error(e)
             }
-            console.log("加载了")
-        }); 
-        onUnmounted(()=>{
+            console.log("加载了初始的第一页数据")
+        });
+        onUnmounted(() => {
             console.log("卸载了")
         })
+
 
 
         //暴露数据
         return {
             filters,
+            userId,
             paginatedTemplates,
             currentPage,
+            showMenu,
+            shouldShow,
             showPage,
             goToCreateTemplate,
             inpval, inpvals,
@@ -314,27 +338,47 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                                 </svg>
                             </button>
                         </td>
-                        <td style="padding: 0%; width: 50px; ">
-                            <button>
-                                <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                    xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
-                                    <path
-                                        d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12392" fill="#8a8a8a"></path>
-                                    <path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12393" fill="#8a8a8a"></path>
-                                    <path
-                                        d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12394" fill="#8a8a8a"></path>
-                                    <path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12395" fill="#8a8a8a"></path>
-                                    <path
-                                        d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
-                                        p-id="12396" fill="#8a8a8a"></path>
-                                    <path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
-                                        p-id="12397" fill="#8a8a8a"></path>
-                                </svg>
-                            </button>
+                        <td class="action-cell">
+                            <div class="act">
+                                <button @click="showMenu(template.id)">
+                                    <svg t="1740900353387" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="12391" width="200" height="200">
+                                        <path
+                                            d="M319 256.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 128.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                            p-id="12392" fill="#8a8a8a"></path>
+                                        <path d="M126.5 192.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                            p-id="12393" fill="#8a8a8a"></path>
+                                        <path
+                                            d="M319 577.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 449.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                            p-id="12394" fill="#8a8a8a"></path>
+                                        <path d="M126.5 513.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                            p-id="12395" fill="#8a8a8a"></path>
+                                        <path
+                                            d="M319 896.43c-22.57 0-43.59-13.14-54.88-32.69A63.37 63.37 0 0 1 319 768.69h577a63.37 63.37 0 0 1 54.88 95.06c-11.28 19.55-32.31 32.69-54.88 32.69z"
+                                            p-id="12396" fill="#8a8a8a"></path>
+                                        <path d="M126.5 832.56m-63.5 0a63.5 63.5 0 1 0 127 0 63.5 63.5 0 1 0-127 0Z"
+                                            p-id="12397" fill="#8a8a8a"></path>
+                                    </svg>
+
+                                </button>
+                                <div class="action-menu" v-if="shouldShow === template.id">
+                                    <div v-if="template.category == `b类` && template.authorId == userId"
+                                        class="action-item" style="background-color:orangered;">
+                                        <i class="delete-icon"></i>
+                                        <span>删除</span>
+                                    </div>
+                                    <div class="action-item" style="background-color:#409eff;">
+                                        <i class="view-icon"></i>
+                                        <span>查看</span>
+                                    </div>
+                                    <div v-if="template.category == `b类` && template.authorId == userId"
+                                        class="action-item " style="background-color:greenyellow;">
+                                        <i class="delete-icon"></i>
+                                        <span>重命名</span>
+                                    </div>
+
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -477,7 +521,7 @@ select {
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 table {
@@ -497,8 +541,8 @@ td {
     width: 250px;
     padding-bottom: 6px;
     padding-top: 6px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
     border-top: 1px solid #ebeef5;
     color: #606266;
     text-align: center;
@@ -563,4 +607,68 @@ td {
 .goto:hover {
     transform: scale(1.2);
 }
+
+/* 操作按钮和下拉菜单样式 */
+.action-cell {
+    position: relative;
+    padding: 0% 0% 0% 0% 0% 0% 0% 0% 0%;
+    /* display: flex; */
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: #f0f2f5;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.action-btn:hover {
+    background: #e0e2e5;
+}
+
+.action-menu {
+    position: absolute;
+    top: 30%;
+    right: -60px;
+    width: 120px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+
+
+    z-index: 10;
+    /* 动画过渡自然 */
+    transition: transform 0.3s ease;
+    /* transform: translateY(-50%); */
+    /* 让 menu 平滑地出现 */
+
+
+
+
+
+
+    /* overflow: hidden; */
+}
+
+.action-item {
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.action-item:hover {
+    color: #000000;
+    box-shadow: #606266;
+}
+
+/* 重命名的action menu */
 </style>
