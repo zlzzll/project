@@ -55,7 +55,7 @@ export default defineComponent({
 
         //日期处理函数，将时间戳转化为具体对应的年月日以及精确的AM和PM
         // 日期处理函数
-       
+
         const gotoFileCreate = () => {
             router.push('/createfile');
         };
@@ -333,15 +333,16 @@ export default defineComponent({
                         <td>{{ template.authorName }}</td>
                         <td>{{ formatDate(template.updateTime).split(" ")[0] }}
                             <div style="font-size: smaller; color: gray;">{{ formatDate(template.updateTime).split(" ")[1]
-                            }} {{ formatDate(template.updateTime).split(" ")[2]
-                        }} </div>
+                                }} {{ formatDate(template.updateTime).split(" ")[2]}} 
+                            </div>
                         </td>
                         <td class="action-cell">
                             <div class="act">
                                 <button class="action-btn" @click="toggleActionMenu(template.id)">
                                     <i class="dropdown-icon">▼</i>
                                 </button>
-                                <div class="action-menu" v-if="showActionMenu === template.id">
+                                <!-- 添加show类的绑定不然没法正常显示 -->
+                                <div class="action-menu" :class="{show: showActionMenu === template.id}">  
                                     <div class="action-item" style="background-color:orangered;"
                                         @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
@@ -359,7 +360,7 @@ export default defineComponent({
                                     </div>
                                     <div class="action-item " style="background-color:greenyellow;"
                                         @click="renameFile(template.id)">
-                                        <i class="delete-icon"></i>
+                                        <i class="rename-icon"></i>
                                         <span>重命名</span>
                                     </div>
 
@@ -560,9 +561,14 @@ td {
 /* 操作按钮和下拉菜单样式 */
 .action-cell {
     position: relative;
-    /* display: flex; */
+    width: 80px;
 }
 
+.act {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
 
 .action-btn {
     display: flex;
@@ -588,28 +594,42 @@ td {
 
 .action-menu {
     position: absolute;
-    top: 100%;
-    right: -30px;
+    top: 100px;
+    right: -120px;
     width: 120px;
-    background: white;
+    background: transparent;
     border-radius: 4px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    overflow: hidden;
+    z-index: 1000;
+    transform: translateY(-50%) translateX(20px) scale(0.95);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.action-menu.show {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+    pointer-events: auto;
 }
 
 .action-item {
     color: white;
     display: flex;
+    border-radius: 4px;
+
     align-items: center;
     padding: 10px 15px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    /* margin: 4px 0; */
+    gap: 8px;
 }
 
 .action-item:hover {
     color: #000000;
-    box-shadow: #606266;
+    transform: translateX(6px);
+    background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .action-item.delete {
@@ -651,4 +671,10 @@ td {
 .btn {
     min-width: 80px;
 }
+
+/* 图标样式修正 */
+.download-icon::before { content: "⤓";font-weight: 900; }
+.rename-icon::before { content: "✎"; }
+.delete-icon::before { content: "×";font-weight: 900; }
+.view-icon::before { content: "👁️"; }
 </style>

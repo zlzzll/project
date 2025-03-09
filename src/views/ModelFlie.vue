@@ -7,6 +7,7 @@ import axios from "axios";
 import host from "../config/hostname";
 import { ElMessage } from 'element-plus';
 import { useUserStore } from "../store";
+import formatDate from "../tools/formatDate";
 
 const userId = ref()
 const hostname = host();
@@ -73,11 +74,6 @@ export default defineComponent({
             }
         };
 
-        const parseTemplateDate = (datetime: string) => {
-            const [datePart] = datetime.split(' ');
-            const [day, month, year] = datePart.split('.');
-            return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        };
 
         const applyFilters = () => {
             if (filters.value.id || filters.value.author || filters.value.category || filters.value.modifyDate || filters.value.templateName) {
@@ -103,6 +99,33 @@ export default defineComponent({
             };
             filteredTemplates.value = templateFiles.value;
             currentPage.value = 1;
+        };
+
+
+        //文件操作
+
+          // 查看文件详情
+          const viewFileDetails = (id: number) => {
+            console.log('查看文件详情:', id);
+            shouldShow.value = null;
+        };
+
+        // 删除文件
+        const deleteFile = (id: number) => {
+            console.log('删除文件:', id);
+            shouldShow.value = null;
+        };
+
+        // 下载文件
+        const downloadFile = (id: number) => {
+            console.log('下载文件:', id);
+            shouldShow.value = null;
+        };
+
+        // 重命名文件
+        const renameFile = (id: number) => {
+            console.log('重命名文件:', id);
+            shouldShow.value = null;
         };
 
         // 跳转到文件管理页面并应用筛选条件
@@ -236,7 +259,12 @@ export default defineComponent({
             changePage,
             prevPage,
             nextPage,
-            goToFileManage
+            formatDate,
+            goToFileManage,
+            viewFileDetails,
+            deleteFile,
+            downloadFile,
+            renameFile
         };
     },
 });
@@ -323,10 +351,9 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                         <td>{{ template.templateName }}</td>
                         <td>{{ template.authorName }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
-                        <td style="width: 100px;">{{ template.updateTime.split(" ")[0] }}
-                            <span style="font-size: smaller; color: gray;">{{ template.updateTime.split(" ")[1] }}
-                                AM
-                            </span>
+                        <td>{{ formatDate(template.updateTime).split(" ")[0] }}
+                            <div style="font-size: smaller; color: gray;">{{ formatDate(template.updateTime).split(" ")[1]}} {{ formatDate(template.updateTime).split(" ")[2] }}
+                            </div>
                         </td>
                         <td style=" width: 50px;height: 50px; ">
                             <button style="align-items: center; " class="goto" @click="goToFileManage(template)">
@@ -361,22 +388,25 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                                     </svg>
 
                                 </button>
-                                <div class="action-menu" v-if="shouldShow === template.id">
+                                <div class="action-menu" :class="{ show: shouldShow === template.id }">
                                     <div v-if="template.category == `b类` && template.authorId == userId"
-                                        class="action-item" style="background-color:orangered;">
+                                        class="action-item" style="background-color:orangered;"
+                                        @click="deleteFile(template.id)"
+                                        >
                                         <i class="delete-icon"></i>
                                         <span>删除</span>
                                     </div>
-                                    <div class="action-item" style="background-color:#409eff;">
+                                    <div class="action-item" style="background-color:#409eff;"
+                                    @click="viewFileDetails(template.id)">
                                         <i class="view-icon"></i>
                                         <span>查看</span>
                                     </div>
                                     <div v-if="template.category == `b类` && template.authorId == userId"
-                                        class="action-item " style="background-color:greenyellow;">
-                                        <i class="delete-icon"></i>
+                                        class="action-item" style="background-color:greenyellow;"
+                                        @click="renameFile(template.id)">
+                                        <i class="rename-icon"></i> <!-- 修正图标类名 -->
                                         <span>重命名</span>
                                     </div>
-
                                 </div>
                             </div>
                         </td>
@@ -419,6 +449,29 @@ button.active {
     /* 白色文字 */
 }
 
+/* 图标基础样式 */
+.icon {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+}
+
+/* 文件管理区域整体布局 */
+.file-management {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-width: 1200px;  /* 防止内容挤压 */
+}
+
+/* 页面头部样式 */
+.header {
+    margin-bottom: 24px;
+    position: relative;
+    right: 100px;
+}
+
+/* 筛选容器基础样式 */
 .filter-container {
     padding: 2vw;
     width: 100%;
@@ -427,34 +480,7 @@ button.active {
     box-sizing: border-box;
 }
 
-.icon {
-    width: 20px;
-    height: 20px;
-    padding: 0;
-
-}
-
-.file-management {
-    padding: 24px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.header {
-    margin-bottom: 24px;
-    position: relative;
-    right: 100px;
-}
-
-.filter-continer {
-    /* width: 1500px; */
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
+/* 筛选组布局 */
 .filter-group {
     position: relative;
     right: 100px;
@@ -464,6 +490,7 @@ button.active {
     margin-bottom: 6px;
 }
 
+/* 筛选项布局 */
 .filter-item {
     position: relative;
     display: flex;
@@ -471,11 +498,13 @@ button.active {
     gap: 4px;
 }
 
+/* 标签样式 */
 label {
     font-size: 12px;
     color: #606266;
 }
 
+/* 输入框和选择框基础样式 */
 input,
 select {
     padding: 8px 10px;
@@ -485,6 +514,7 @@ select {
     width: 200px;
 }
 
+/* 筛选操作按钮区域 */
 .filter-actions {
     width: 200px;
     display: flex;
@@ -495,40 +525,48 @@ select {
     justify-content: flex-end;
 }
 
+/* 按钮基础样式 */
 .btn {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 80px;
 }
 
+/* 查询按钮样式 */
 .btn.query {
     background: #409eff;
     color: white;
     border: none;
 }
 
+/* 重置按钮样式 */
 .btn.reset {
     background: #f4f4f5;
     color: #606266;
     border: 1px solid #d3d4d6;
 }
 
+/* 按钮悬停效果 */
 .btn:hover {
     opacity: 0.9;
 }
 
+/* 表格容器样式 */
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    /* overflow: hidden; */
+    overflow: visible;  /* 允许菜单溢出 */
 }
 
+/* 表格基础样式 */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
+/* 表头样式 */
 th {
     background: #f5f7fa;
     color: #909399;
@@ -537,6 +575,7 @@ th {
     text-align: center;
 }
 
+/* 表格单元格样式 */
 td {
     width: 250px;
     padding-bottom: 6px;
@@ -548,6 +587,7 @@ td {
     text-align: center;
 }
 
+/* 分类标签样式 */
 .category-tag {
     display: inline-block;
     padding: 4px 8px;
@@ -557,12 +597,14 @@ td {
     font-size: 12px;
 }
 
+/* 无数据提示样式 */
 .no-data {
     text-align: center;
     padding: 24px;
     color: #909399;
 }
 
+/* 分页组件样式 */
 .pagination {
     display: flex;
     align-items: center;
@@ -593,11 +635,6 @@ td {
     margin-left: 12px;
 }
 
-/* 调整原有按钮间距 */
-.btn {
-    min-width: 80px;
-}
-
 /* 添加goto按钮的悬停效果 */
 .goto {
     cursor: pointer;
@@ -611,8 +648,13 @@ td {
 /* 操作按钮和下拉菜单样式 */
 .action-cell {
     position: relative;
-    padding: 0% 0% 0% 0% 0% 0% 0% 0% 0%;
-    /* display: flex; */
+    width: 80px;  /* 固定宽度防止错位 */
+}
+
+.act {
+    position: relative;
+    display: flex;
+    justify-content: center;
 }
 
 .action-btn {
@@ -632,43 +674,103 @@ td {
     background: #e0e2e5;
 }
 
+/* 下拉菜单基础样式 */
 .action-menu {
     position: absolute;
-    top: 30%;
-    right: -60px;
+    top: 50%;  /* 垂直居中 */
+    right: -110px;  /* 根据新位置调整 */
     width: 120px;
-    background: white;
+    background: transparent;
     border-radius: 4px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-
-
     z-index: 10;
-    /* 动画过渡自然 */
-    transition: transform 0.3s ease;
-    /* transform: translateY(-50%); */
-    /* 让 menu 平滑地出现 */
-
-
-
-
-
-
-    /* overflow: hidden; */
+    transform-origin: right center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateX(20px) scale(0.95);
+    pointer-events: none;  /* 新增 */
 }
 
+/* 下拉菜单显示时的动画状态 */
+.action-menu.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;  /* 新增 */
+}
+
+/* 操作项基础样式 */
 .action-item {
     color: white;
     display: flex;
     align-items: center;
-    padding: 10px 15px;
+    border-radius: 4px;
+    padding: 10px 15px;  
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    gap: 8px;
 }
 
+/* 操作项悬停动画 */
 .action-item:hover {
-    color: #000000;
-    box-shadow: #606266;
+    color: #000;
+    transform: translateX(6px);
+    background: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* 重命名的action menu */
+/* 操作项间分隔线 */
+.action-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 10px;  
+    right: 10px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* 图标动画效果 */
+.action-item i {
+    transition: transform 0.3s ease;
+}
+
+.action-item:hover i {
+    transform: scale(1.2);
+}
+
+/* 图标具体样式 */
+.delete-icon::before {
+    content: "×";
+    font-weight: bold;
+}
+
+.view-icon::before {
+    content: "👁️";
+}
+
+.rename-icon::before {
+    content: "✎";
+}
+
+/* 背景色过渡增强 */
+.action-item[style*="background-color:orangered"] {
+    background-color: orangered !important;
+}
+
+.action-item[style*="background-color:#409eff"] {
+    background-color: #409eff !important;
+}
+
+.action-item[style*="background-color:greenyellow"] {
+    background-color: greenyellow !important;
+}
+
+/* 优化图标对齐 */
+.action-item i {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+}
 </style>

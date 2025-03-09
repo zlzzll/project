@@ -67,7 +67,7 @@ const sendVerificationCode = async () => {
             countdownTimer.value = null;
           }
         }
-      }, 1000);
+      },1000);
 
     } else {
       const message = response.data.msg;

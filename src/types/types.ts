@@ -22,7 +22,7 @@ export interface TemplateFile {
   authorId: number;
   authorName: string;
   category: string;
-  updateTime: string;
+  updateTime: number;
 }
 
 // 文件接口
