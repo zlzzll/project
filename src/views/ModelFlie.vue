@@ -5,9 +5,9 @@ import testdata from '../data/data';
 import { TemplateFile } from "../types/types";
 import axios from "axios";
 import host from "../config/hostname";
-import { ElMessage } from 'element-plus';
 import { useUserStore } from "../store";
 import formatDate from "../tools/formatDate";
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const userId = ref()
 const hostname = host();
@@ -102,33 +102,138 @@ export default defineComponent({
         };
 
 
-        //文件操作
+        //模板操作
 
-          // 查看文件详情
-          const viewFileDetails = (id: number) => {
-            console.log('查看文件详情:', id);
+
+        //模板列表刷新的函数
+
+
+        // 查看模板详情（GET）
+        const viewFileDetails = async (id: number) => {
+            try {
+                const response = await axios.get(`/api/files/${id}`);
+                console.log('模板详情:', response.data);
+
+                // 实际开发中这里可以跳转到详情页
+                if (response.data.code == 200) {
+                    ElMessage.success('模板详情获取成功');
+                } else {
+                    ElMessage.error(response.data.msg);
+                }
+            } catch (error) {
+                ElMessage.error('获取模板详情失败');
+                console.error('Error fetching file details:', error);
+            }
             shouldShow.value = null;
         };
 
-        // 删除文件
-        const deleteFile = (id: number) => {
-            console.log('删除文件:', id);
+        // 删除模板（DELETE）
+        const deleteFile = async (id: number) => {
+            try {
+                await ElMessageBox.confirm('确定要删除该模板吗？', '警告', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                });
+
+                const response = await axios.post(hostname + `/api/template/delete`,
+                    {
+                        id: id
+                    }
+                );
+                if (response.data.code == 200) {
+                    ElMessage.success('模板删除成功');
+                } else {
+                    ElMessage.error(response.data.msg);
+                }
+
+                // 刷新模板列表
+                // fetchFileList();
+            } catch (error) {
+                if (error !== 'cancel') {
+                    ElMessage.error('模板删除失败');
+                    console.error('Error deleting file:', error);
+                }
+            }
             shouldShow.value = null;
         };
 
-        // 下载文件
-        const downloadFile = (id: number) => {
-            console.log('下载文件:', id);
+        // 下载模板（POST）
+        const downloadFile = async (id: number) => {
+            try {
+                const response = await axios.get(hostname + `/api/template/download/${id}`, {
+                    responseType: 'blob',
+                    headers: {
+                        'Content-Type': 'application/octet-stream'
+                    }
+                });
+
+                // 创建临时下载链接
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+
+                // 从Content-Disposition获取模板名
+                const fileName = response.headers['content-disposition']
+                    ?.split('filename=')[1]
+                    ?.replace(/"/g, '') || `file_${id}`;
+
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                if (response.data.code == 200) {
+                    ElMessage.success('模板下载已开始');
+                } else {
+                    ElMessage.error(response.data.msg);
+                }
+
+            } catch (error) {
+                ElMessage.error('模板下载失败');
+                console.error('Error downloading file:', error);
+            }
             shouldShow.value = null;
         };
 
-        // 重命名文件
-        const renameFile = (id: number) => {
-            console.log('重命名文件:', id);
+        // 重命名模板
+        const renameFile = async (id: number) => {
+            try {
+                const { value: newName } = await ElMessageBox.prompt(
+                    '请输入新模板名',
+                    '重命名模板',
+                    {
+                        confirmButtonText: '确认',
+                        cancelButtonText: '取消',
+                        inputPattern: /\S+/, // 非空验证
+                        inputErrorMessage: '模板名不能为空'
+                    }
+                );
+
+                const response = await axios.post(hostname + `/api/template/rename`, {
+                    id: id,
+                    templateName: newName
+                });
+                if (response.data.code == 200) {
+                    ElMessage.success('重命名成功');
+                } else {
+                    ElMessage.error(response.data.msg);
+                }
+
+                // 刷新模板列表
+                // fetchFileList();
+            } catch (error) {
+                if (error !== 'cancel') {
+                    ElMessage.error('重命名失败');
+                    console.error('Error renaming file:', error);
+                }
+            }
             shouldShow.value = null;
         };
 
-        // 跳转到文件管理页面并应用筛选条件
+
+
+        // 跳转到模板管理页面并应用筛选条件的按钮
         const goToFileManage = (template: TemplateFile) => {
             router.push({
                 path: '/filemanage',
@@ -138,6 +243,8 @@ export default defineComponent({
             });
         };
 
+
+        //下拉框展示
         const shouldShow = ref()
         const showMenu = (id: number) => {
             if (shouldShow.value === id) {
@@ -276,7 +383,7 @@ export default defineComponent({
 <template>
     <div class="file-management">
         <header class="header">
-            <h2>模板文件</h2>
+            <h2>模板模板</h2>
             <p>现存模板如下</p>
 
             <button style="background: #409eff;color: white;position: relative;left: 1250px;"
@@ -337,7 +444,7 @@ export default defineComponent({
                         <th>作者</th>
                         <th style="position: relative;top: 10px;">分类<span class="help-icon"
                                 style="position: relative;left: 120px;bottom: 30px; " title="a类为超级模板，用户不能操作该模板；
-a类模板提交json，上传该模板的文件有严格的格式校验；">?</span></th>
+a类模板提交json，上传该模板的模板有严格的格式校验；">?</span></th>
                         <th>修改时间</th>
 
                     </tr>
@@ -352,7 +459,9 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                         <td>{{ template.authorName }}</td>
                         <td><span class="category-tag">{{ template.category }}</span></td>
                         <td>{{ formatDate(template.updateTime).split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ formatDate(template.updateTime).split(" ")[1]}} {{ formatDate(template.updateTime).split(" ")[2] }}
+                            <div style="font-size: smaller; color: gray;">
+                                {{ formatDate(template.updateTime).split(" ")[1] }}
+                                {{ formatDate(template.updateTime).split(" ")[2] }}
                             </div>
                         </td>
                         <td style=" width: 50px;height: 50px; ">
@@ -391,13 +500,12 @@ a类模板提交json，上传该模板的文件有严格的格式校验；">?</s
                                 <div class="action-menu" :class="{ show: shouldShow === template.id }">
                                     <div v-if="template.category == `b类` && template.authorId == userId"
                                         class="action-item" style="background-color:orangered;"
-                                        @click="deleteFile(template.id)"
-                                        >
+                                        @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
                                         <span>删除</span>
                                     </div>
                                     <div class="action-item" style="background-color:#409eff;"
-                                    @click="viewFileDetails(template.id)">
+                                        @click="viewFileDetails(template.id)">
                                         <i class="view-icon"></i>
                                         <span>查看</span>
                                     </div>
@@ -456,12 +564,13 @@ button.active {
     padding: 0;
 }
 
-/* 文件管理区域整体布局 */
+/* 模板管理区域整体布局 */
 .file-management {
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
-    min-width: 1200px;  /* 防止内容挤压 */
+    min-width: 1200px;
+    /* 防止内容挤压 */
 }
 
 /* 页面头部样式 */
@@ -557,7 +666,8 @@ select {
 .table-container {
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    overflow: visible;  /* 允许菜单溢出 */
+    overflow: visible;
+    /* 允许菜单溢出 */
 }
 
 /* 表格基础样式 */
@@ -648,7 +758,8 @@ td {
 /* 操作按钮和下拉菜单样式 */
 .action-cell {
     position: relative;
-    width: 80px;  /* 固定宽度防止错位 */
+    width: 80px;
+    /* 固定宽度防止错位 */
 }
 
 .act {
@@ -677,8 +788,10 @@ td {
 /* 下拉菜单基础样式 */
 .action-menu {
     position: absolute;
-    top: 50%;  /* 垂直居中 */
-    right: -110px;  /* 根据新位置调整 */
+    top: 50%;
+    /* 垂直居中 */
+    right: -110px;
+    /* 根据新位置调整 */
     width: 120px;
     background: transparent;
     border-radius: 4px;
@@ -688,14 +801,16 @@ td {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
     transform: translateX(20px) scale(0.95);
-    pointer-events: none;  /* 新增 */
+    pointer-events: none;
+    /* 新增 */
 }
 
 /* 下拉菜单显示时的动画状态 */
 .action-menu.show {
     opacity: 1;
     transform: translateX(0) scale(1);
-    pointer-events: auto;  /* 新增 */
+    pointer-events: auto;
+    /* 新增 */
 }
 
 /* 操作项基础样式 */
@@ -704,7 +819,7 @@ td {
     display: flex;
     align-items: center;
     border-radius: 4px;
-    padding: 10px 15px;  
+    padding: 10px 15px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -723,7 +838,7 @@ td {
     content: "";
     position: absolute;
     bottom: -2px;
-    left: 10px;  
+    left: 10px;
     right: 10px;
     height: 1px;
     background: rgba(255, 255, 255, 0.3);

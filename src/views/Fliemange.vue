@@ -5,7 +5,7 @@ import testdata from '../data/data';
 import { MyFile } from "../types/types";
 import router from "../router";
 import host from "../config/hostname";
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from "../store";
 import axios from "axios";
 import formatDate from "../tools/formatDate";
@@ -88,27 +88,135 @@ export default defineComponent({
             }
         };
 
-        // 查看文件详情
-        const viewFileDetails = (id: number) => {
-            console.log('查看文件详情:', id);
+        //文件操作
+
+
+        //文件列表刷新的函数
+
+
+        // 查看文件详情（GET）
+        const viewFileDetails = async (id: number) => {
+            try {
+                const response = await axios.get(hostname+`/api/files/${id}`);
+                // console.log('文件详情:', response.data);
+
+                // 实际开发中这里可以跳转到详情页
+                if (response.data.code == 200) {
+                    ElMessage.success('文件详情获取成功');
+                } else {
+                    ElMessage.error('获取文件详情失败');
+                    ElMessage.error(response.data.msg);
+                }
+            } catch (error) {
+                ElMessage.error('获取文件详情失败');
+                console.error('Error fetching file details:', error);
+            }
             showActionMenu.value = null;
         };
 
-        // 删除文件
-        const deleteFile = (id: number) => {
-            console.log('删除文件:', id);
+        // 删除文件（DELETE）
+        const deleteFile = async (id: number) => {
+            try {
+                await ElMessageBox.confirm('确定要删除该文件吗？', '警告', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                });
+
+                const response = await axios.post(hostname + `/api/ai_case/delete`,
+                    {
+                        id: id
+                    }
+                );
+                if (response.data.code == 200) {
+                    ElMessage.success('文件删除成功');
+                } else {
+                    ElMessage.error('文件删除失败');
+                    ElMessage.error(response.data.msg);
+                }
+
+                // 刷新文件列表
+                // fetchFileList();
+            } catch (error) {
+                if (error !== 'cancel') {
+                    ElMessage.error('文件删除失败');
+                    console.error('Error deleting file:', error);
+                }
+            }
             showActionMenu.value = null;
         };
 
-        // 下载文件
-        const downloadFile = (id: number) => {
-            console.log('下载文件:', id);
+        // 下载文件（POST）
+        const downloadFile = async (id: number) => {
+            try {
+                const response = await axios.get(`/api/ai_case/download/${id}`, {
+                    responseType: 'blob',
+                    headers: {
+                        'Content-Type': 'application/octet-stream'
+                    }
+                });
+
+                // 创建临时下载链接
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+
+                // 从Content-Disposition获取文件名
+                const fileName = response.headers['content-disposition']
+                    ?.split('filename=')[1]
+                    ?.replace(/"/g, '') || `file_${id}`;
+
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+                if (response.data.code == 200) {
+                    ElMessage.success('文件下载已开始');
+                } else {
+                    ElMessage.error('文件下载失败');
+                    ElMessage.error(response.data.msg);
+                }
+
+            } catch (error) {
+                ElMessage.error('文件下载失败');
+                console.error('Error downloading file:', error);
+            }
             showActionMenu.value = null;
         };
 
         // 重命名文件
-        const renameFile = (id: number) => {
-            console.log('重命名文件:', id);
+        const renameFile = async (id: number) => {
+            try {
+                const { value: newName } = await ElMessageBox.prompt(
+                    '请输入新文件名',
+                    '重命名文件',
+                    {
+                        confirmButtonText: '确认',
+                        cancelButtonText: '取消',
+                        inputPattern: /\S+/, // 非空验证
+                        inputErrorMessage: '文件名不能为空'
+                    }
+                );
+
+                const response = await axios.post(hostname+`/api/ai_case/rename`, {
+                    id: id,
+                    templateName: newName
+                });
+                if (response.data.code == 200) {
+                    ElMessage.success('重命名成功');
+                } else {
+                    ElMessage.error(response.data.msg);
+                }
+
+                // 刷新文件列表
+                // fetchFileList();
+            } catch (error) {
+                if (error !== 'cancel') {
+                    ElMessage.error('重命名失败');
+                    console.error('Error renaming file:', error);
+                }
+            }
             showActionMenu.value = null;
         };
 
@@ -332,8 +440,9 @@ export default defineComponent({
                         <td>{{ template.templateName }}</td>
                         <td>{{ template.authorName }}</td>
                         <td>{{ formatDate(template.updateTime).split(" ")[0] }}
-                            <div style="font-size: smaller; color: gray;">{{ formatDate(template.updateTime).split(" ")[1]
-                                }} {{ formatDate(template.updateTime).split(" ")[2]}} 
+                            <div style="font-size: smaller; color: gray;">
+                                {{ formatDate(template.updateTime).split(" ")[1] }}
+                                {{ formatDate(template.updateTime).split(" ")[2] }}
                             </div>
                         </td>
                         <td class="action-cell">
@@ -342,7 +451,7 @@ export default defineComponent({
                                     <i class="dropdown-icon">▼</i>
                                 </button>
                                 <!-- 添加show类的绑定不然没法正常显示 -->
-                                <div class="action-menu" :class="{show: showActionMenu === template.id}">  
+                                <div class="action-menu" :class="{ show: showActionMenu === template.id }">
                                     <div class="action-item" style="background-color:orangered;"
                                         @click="deleteFile(template.id)">
                                         <i class="delete-icon"></i>
@@ -673,8 +782,21 @@ td {
 }
 
 /* 图标样式修正 */
-.download-icon::before { content: "⤓";font-weight: 900; }
-.rename-icon::before { content: "✎"; }
-.delete-icon::before { content: "×";font-weight: 900; }
-.view-icon::before { content: "👁️"; }
+.download-icon::before {
+    content: "⤓";
+    font-weight: 900;
+}
+
+.rename-icon::before {
+    content: "✎";
+}
+
+.delete-icon::before {
+    content: "×";
+    font-weight: 900;
+}
+
+.view-icon::before {
+    content: "👁️";
+}
 </style>
