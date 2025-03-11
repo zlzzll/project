@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import axios from 'axios';
 
 const router = useRouter();
 
@@ -11,6 +12,7 @@ const templateType = ref('b类');
 const fileList = ref<File[]>([]);
 const fileInput = ref<HTMLInputElement>();
 const isDragging = ref(false);
+const loading = ref(false); // 加载状态
 
 // 文件处理逻辑
 
@@ -58,7 +60,8 @@ const formatSize = (size: number) => {
 };
 
 // 提交验证
-const handleSubmit = () => {
+// 提交逻辑
+const handleSubmit = async () => {
   if (!templateName.value.trim()) {
     ElMessage.warning('请输入模板名称');
     return;
@@ -69,8 +72,45 @@ const handleSubmit = () => {
     return;
   }
 
-  ElMessage.success('模板创建成功');
-  router.push('/modelfile');
+  try {
+    loading.value = true;
+
+    const formData = new FormData();
+    formData.append('templateName', templateName.value);
+    formData.append('category', templateType.value);
+    formData.append('multipartFile', fileList.value[0]);
+
+    const response = await axios.post('/api/template/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        // 如果需要认证可以取消注释下面这行
+        // 'Authorization': `Bearer ${yourToken}`
+      },
+      timeout: 30000 // 30秒超时
+    });
+
+    if (response.data.code === 200) { // 根据实际接口返回结构调整
+      ElMessage.success('模板创建成功');
+      router.push('/modelfile');
+    } else {
+      throw new Error(response.data.message || '上传失败');
+    }
+  } catch (error) {
+    let message = '请求失败，请稍后重试';
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        // 后端返回的错误信息
+        message = error.response.data.message || `服务器错误：${error.response.status}`;
+      } else if (error.request) {
+        message = '网络连接超时，请检查网络';
+      }
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
+    ElMessage.error(message);
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 移除文件
@@ -128,7 +168,9 @@ const removeFile = (index: number) => {
         <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" multiple="false" />
       </div>
 
-      <button class="submit-btn" @click="handleSubmit">提交</button>
+      <button class="submit-btn" @click="handleSubmit" :disabled="loading">
+        {{ loading ? '提交中...' : '提交' }}
+      </button>
     </div>
   </div>
 </template>
@@ -338,5 +380,16 @@ select:focus {
     font-size: 0.9em;
     color: #666;
   }
+}
+
+/* 添加加载状态样式 */
+.submit-btn[disabled] {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-btn[disabled]:hover {
+  background-color: #a0cfff;
 }
 </style>
