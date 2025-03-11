@@ -1,55 +1,79 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus'; 
-
-
-declare type File = {
-  name: string;
-  size: number;
-  type: string;
-  lastModified: number;
-};
+import { ElMessage } from 'element-plus';
 
 const router = useRouter();
+
+// 响应式数据
 const templateName = ref('');
 const templateType = ref('b类');
 const fileList = ref<File[]>([]);
+const fileInput = ref<HTMLInputElement>();
+const isDragging = ref(false);
 
-const handleFileUpload = (e:EventTarget|null|any) => {
-    const file = (e as HTMLInputElement).files?.[0];
-  if (file) {
-    fileList.value.push(file); 
+// 文件处理逻辑
+
+
+// 点击上传处理
+const handleFileChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  handleFile(input.files?.[0]);
+  input.value = ''; // 清空输入以便重复选择相同文件
+};
+const handleFile = (file: File | undefined) => {
+  if (!file) return;
+
+  // 单文件限制：清空已有文件
+  if (fileList.value.length >= 1) {
+    fileList.value = [];
+  }
+
+  // 大小限制（示例添加50MB限制）
+  const MAX_SIZE = 50 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    ElMessage.warning('文件大小不能超过50MB');
+    return;
+  }
+
+  fileList.value.push(file);
+};
+
+// 修改拖拽处理（添加多文件过滤）
+const handleDrop = (e: DragEvent) => {
+  isDragging.value = false;
+  const files = e.dataTransfer?.files;
+  if (files && files.length > 0) {
+    handleFile(files[0]); // 只取第一个文件
+    if (files.length > 1) {
+      ElMessage.warning('每次只能上传一个文件');
+    }
   }
 };
 
+// 文件大小格式化显示
+const formatSize = (size: number) => {
+  const MB = size / (1024 * 1024);
+  return MB >= 1 ? `${MB.toFixed(1)} MB` : `${(size / 1024).toFixed(1)} KB`;
+};
+
+// 提交验证
 const handleSubmit = () => {
-  if (!templateName.value) {
+  if (!templateName.value.trim()) {
     ElMessage.warning('请输入模板名称');
     return;
   }
+
   if (fileList.value.length === 0) {
     ElMessage.warning('请上传模板文件');
     return;
   }
-  
+
   ElMessage.success('模板创建成功');
   router.push('/modelfile');
 };
 
-const handleDragOver = (e: DragEvent) => {
-  e.preventDefault();
-};
-
-const handleDrop = (e: DragEvent) => {
-  e.preventDefault();
-  const files = e.dataTransfer?.files;
-  if (files && files.length > 0) {
-    const file = files[0];
-    handleFileUpload(file);
-  }
-};
-
+// 移除文件
 const removeFile = (index: number) => {
   fileList.value.splice(index, 1);
 };
@@ -59,7 +83,7 @@ const removeFile = (index: number) => {
   <div class="create-template">
     <div class="template-form">
       <h2>创建模板</h2>
-      
+
       <div class="form-group">
         <label>模板类别</label>
         <div class="select-wrapper">
@@ -73,37 +97,35 @@ const removeFile = (index: number) => {
 
       <div class="form-group">
         <label>模板名称</label>
-        <input 
-          type="text" 
-          v-model="templateName"
-          placeholder="请输入模板名称"
-        />
+        <input type="text" v-model.trim="templateName" placeholder="请输入模板名称" maxlength="50" />
       </div>
 
       <div class="form-group">
         <label>模板上传</label>
-        <div 
-          class="upload-area"
-          @dragover="handleDragOver"
-          @drop="handleDrop"
-        >
-          <input 
-            type="file" 
-            @change="(e) => handleFileUpload(e.target)"
-            style="display: none"
-            ref="fileInput"
-          />
-          <div v-if="fileList.length === 0" class="upload-placeholder">
-            <div class="upload-icon">+</div>
-            <p>点击或拖拽文件到此处上传</p>
-          </div>
-          <div v-else class="file-list">
-            <div v-for="(file, index) in fileList" :key="index" class="file-item">
-              <span>{{ file.name }}</span>
-              <button @click="removeFile(index)" class="remove-btn">×</button>
+        <div class="upload-area" :class="{ 'dragging': isDragging }" @dragover.prevent="isDragging = true"
+          @dragleave="isDragging = false" @drop.prevent="handleDrop" @click="fileInput?.click()">
+          <transition name="fade" mode="out-in">
+            <div v-if="fileList.length === 0" class="upload-placeholder">
+              <div class="upload-icon">+</div>
+              <p>点击或拖拽文件到此处上传</p>
+              <small>仅支持单个文件，最大 50MB</small>
             </div>
-          </div>
+
+            <!-- 文件列表展示始终保持单文件 -->
+            <div v-else class="file-list">
+              <div v-for="(file, index) in fileList" :key="index" class="file-item">
+                <span class="file-name">{{ file.name }}</span>
+                <span class="file-size">{{ formatSize(file.size) }}</span>
+                <button @click.stop="removeFile(index)" class="remove-btn" title="移除文件">
+                  ×
+                </button>
+              </div>
+            </div>
+          </transition>
         </div>
+
+        <!-- 添加单文件选择限制 -->
+        <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" multiple="false" />
       </div>
 
       <button class="submit-btn" @click="handleSubmit">提交</button>
@@ -148,7 +170,8 @@ label {
   font-weight: 500;
 }
 
-input, select {
+input,
+select {
   width: 100%;
   padding: 0.8em;
   border: 1px solid #dcdfe6;
@@ -158,7 +181,8 @@ input, select {
   box-sizing: border-box;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   border-color: #409eff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
@@ -274,6 +298,45 @@ input:focus, select:focus {
   .upload-area {
     padding: 1em;
     min-height: 150px;
+  }
+}
+
+/* 新增拖拽状态样式 */
+.upload-area.dragging {
+  border-color: #409eff;
+  background: rgba(64, 158, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* 过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.file-name {
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 优化移动端显示 */
+@media (max-width: 768px) {
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+  }
+
+  .file-size {
+    font-size: 0.9em;
+    color: #666;
   }
 }
 </style>

@@ -40,12 +40,25 @@ const enterEditMode = () => {
 
 // 保存用户信息
 const saveUserInfo = async () => {
+    // 若未修改任何信息，不执行保存操作
+    if (userInfo.value.username === userStore.$state.userInfo?.username && userInfo.value.organization === userStore.$state.userInfo?.organization) {
+        return;
+    }
+
+    // 若 username 或 organization 为空，弹出提示并返回
+    if (!userInfo.value.username ||!userInfo.value.organization) {
+        ElMessage.error('用户名和机构不能为空');
+        return;
+    }
+
+    // 若 organization 已存在，弹出提示并返回
     userInfo.value.username = userInfo.value.username
     userInfo.value.organization = userInfo.value.organization
     localStorage.setItem('userinfo', JSON.stringify(userInfo.value))
     userStore.updatUser()
     isEditing.value = false;    
     return
+
     try {
         // 调用更新用户信息接口
         await axios.post(hostname + '/api/user/update', {
@@ -107,7 +120,8 @@ const uploadAvatar = async () => {
         } else {
             ElMessage.error(response.data.msg)
         }
-    } catch (error) {
+    } catch (error) {   
+        ElMessage.error('头像上传失败：' + error);
         console.error('头像上传失败:', error);
     }
 };
