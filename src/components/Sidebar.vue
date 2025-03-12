@@ -41,7 +41,7 @@ const logout = () => {
            />
       </div>
       <p></p>
-      <div style="width: 86px; text-align: center;">{{ userStore.$state.userInfo?.username }}
+      <div style="width: 86px; text-align: center;margin-top: 5px;">{{ userStore.$state.userInfo?.username }}
       </div>
     </div>
 
@@ -118,6 +118,7 @@ const logout = () => {
   flex: 1;
   padding: 20px 0;
   overflow-y: auto;
+  margin-top: 5px;
 }
 
 .menu-item {
@@ -135,11 +136,11 @@ const logout = () => {
 
 .menu-item:hover {
   background-color: #263445;
-  transform: translateX(5px);
+  transform: translateX(0px);
 }
 
 .menu-item.active {
-  background-color: #1890ff;
+  background-color: #178af6;
   color: white;
 }
 
@@ -160,6 +161,7 @@ const logout = () => {
   /* display: flex; */
   position: relative;
   left: 70px;
+  margin-top: 10px;
 }
 
 .user-info {

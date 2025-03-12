@@ -371,39 +371,37 @@ export default defineComponent({
 <template>
     <div class="file-management">
         <header class="header">
-            <h2>文件管理</h2>
-            <p>我的文件列表</p>
-
-            <button class="create-file-btn" @click="gotoFileCreate">创建文件</button>
-            <hr style="width: 1350px;">
+            <h2 style="margin-top: -10px;">文件管理</h2>
+            <p style="margin-top: -2px;margin-bottom: 20px;">您的文件如下</p>
+            <hr style="width: 1250px;">
         </header>
 
         <div class="filter-container">
             <div class="filter-group">
-                <div class="filter-item">
-                    <label>ID:</label>
+                <div class="filter-item" style="margin-left: 70px;">
+                    <label></label>
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
-                <div class="filter-item">
-                    <label>文档名称:</label>
+                <div class="filter-item" style="margin-left: 30px;">
+                    <label></label>
                     <input type="text" v-model="filters.filename" placeholder="输入文件名称">
                 </div>
-                <div class="filter-item">
-                    <label>关联模板:</label>
-                    <input type="text" v-model="filters.templateName" placeholder="输入文件名称">
+                <div class="filter-item" style="margin-left: 30px;">
+                    <label></label>
+                    <input type="text" v-model="filters.templateName" placeholder="输入模板名称">
                 </div>
-                <div class="filter-item">
-                    <label>作者:</label>
+                <div class="filter-item" style="margin-left: 45px;">
+                    <label></label>
                     <input type="text" v-model="filters.author" placeholder="输入作者">
                 </div>
-                <div class="filter-item">
-                    <label>修改日期:</label>
+                <div class="filter-item" style="margin-left: 25px;">
+                    <label></label>
                     <input type="date" v-model="filters.modifyDate">
                 </div>
             </div>
             <div class="filter-actions">
-                <button class="btn query" @click="applyFilters">查询</button>
-                <button class="btn reset" @click="resetFilters">
+                <button class="btn query" @click="applyFilters" style="width: 10px;height: 40px;">查询</button>
+                <button class="btn reset" @click="resetFilters" >
                     <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
                         xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
                         <path
@@ -413,8 +411,7 @@ export default defineComponent({
                             d="M482.657 214.747l79.355 79.356c10.74 10.74 10.74 28.151 0 38.89-10.74 10.74-28.151 10.74-38.89 0l-85.573-85.572c-18.045-18.045-18.045-47.302 0-65.348l85.766-85.766c10.74-10.74 28.152-10.74 38.891 0 10.74 10.74 10.74 28.151 0 38.89l-79.55 79.55z"
                             fill="#2F54EB" p-id="1473"></path>
                     </svg>
-                    重置
-                </button>
+                    重置</button>
             </div>
         </div>
 
@@ -422,10 +419,10 @@ export default defineComponent({
             <table>
                 <thead>
                     <tr>
-                        <th>文档ID</th>
-                        <th>文档名</th>
-                        <th>模板</th>
-                        <th>作者</th>
+                        <th style="width: 190px;">文档ID</th>
+                        <th style="width: 150px;">文档名</th>
+                        <th style="width: 350px;">模板</th>
+                        <th style="width: 150px;">作者</th>
                         <th>修改时间</th>
                         <th></th>
                     </tr>
@@ -493,7 +490,8 @@ export default defineComponent({
                 :class="{ active: currentPage === showPage + 3 || inpval == showPage + 3 }">{{ showPage + 3 }}</button>
             <button :disabled="currentPage === totalPages" @click="nextPage">&gt;</button>
             <div>
-                <input type="text" style="width: 60px;" v-model="inpvals"> <button @click="gotoPage">Go</button>
+                        <input type="text" style="width: 65px; " v-model="inpvals" placeholder="第几页" @keyup.enter="gotoPage"> <button
+                            @click="gotoPage">Go</button>
             </div>
         </div>
     </div>
@@ -515,16 +513,16 @@ button.active {
 }
 
 .file-management {
+    /* background-color: #f4cdcd; */
     padding: 24px;
-    height: auto;
-    max-width: 1200px;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 .header {
     margin-bottom: 24px;
     position: relative;
-    right: 100px;
+    left: 0px;
 }
 
 .create-file-btn {
@@ -549,6 +547,7 @@ button.active {
     max-width: 1400px;
     margin: 0 auto;
     box-sizing: border-box;
+    margin-top: -20px;
 }
 
 .filter-group {
@@ -560,11 +559,11 @@ button.active {
     margin-bottom: 6px;
 }
 
+/* 筛选项布局 */
 .filter-item {
-    position: relative;
     display: flex;
     flex-direction: column;
-    /* gap: 4px; */
+    gap: 4px;
 }
 
 label {
@@ -579,15 +578,15 @@ select {
     border: 1px solid #dcdfe6;
     border-radius: 4px;
     font-size: 14px;
-    width: 200px;
+    width: 160px;
 }
 
 .filter-actions {
     width: 200px;
     display: flex;
     position: relative;
-    left: 1030px;
-    bottom: 50px;
+    left: 1010px;
+    bottom: 45px;
     gap: 8px;
     justify-content: flex-end;
 }
@@ -616,9 +615,12 @@ select {
 }
 
 .table-container {
+    /* background: #e59999; */
     border: 1px solid #ebeef5;
     border-radius: 8px;
-    /* overflow: hidden; */
+    overflow: visible;
+    /* 允许菜单溢出 */
+    margin-top: -30px;
 }
 
 table {
@@ -704,7 +706,7 @@ td {
 .action-menu {
     position: absolute;
     top: 100px;
-    right: -120px;
+    right: 20px;
     width: 120px;
     background: transparent;
     border-radius: 4px;

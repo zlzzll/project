@@ -383,45 +383,45 @@ export default defineComponent({
 <template>
     <div class="file-management">
         <header class="header">
-            <h2>模板模板</h2>
-            <p>现存模板如下</p>
+            <h2 style="margin-top: -10px;">模板模板</h2>
+            <p style="margin-top: -5px;margin-bottom: 20px;">现存模板如下</p>
 
-            <button style="background: #409eff;color: white;position: relative;left: 1250px;"
+            <button style="background: #409eff;color: white;margin-top: -40px;margin-left: 1110px;position: absolute;border-radius: 4px;"
                 @click="goToCreateTemplate">创建模板</button>
-            <hr style="width: 1350px;">
+            <hr style="width: 1250px;">
         </header>
 
         <div class="filter-container">
             <div class="filter-group">
-                <div class="filter-item">
-                    <label>ID:</label>
+                <div class="filter-item" style="margin-left: 40px;">
+                    <label></label>
                     <input type="text" v-model="filters.id" placeholder="输入ID">
                 </div>
-                <div class="filter-item">
-                    <label>模板名称:</label>
+                <div class="filter-item" style="margin-left: 0px;">
+                    <label></label>
                     <input type="text" v-model="filters.templateName" placeholder="输入模板名称">
                 </div>
-                <div class="filter-item">
-                    <label>作者:</label>
+                <div class="filter-item" style="margin-left: -40px;">
+                    <label></label>
                     <input type="text" v-model="filters.author" placeholder="输入作者">
                 </div>
-                <div class="filter-item">
-                    <label>类别:</label>
+                <div class="filter-item" style="margin-left: -90px;">
+                    <label></label>
                     <select v-model="filters.category">
-                        <option value="">全部</option>
+                        <option value="">类别</option>
                         <option value="a类">a类</option>
                         <option value="b类">b类</option>
                     </select>
                 </div>
-                <div class="filter-item">
-                    <label>修改日期:</label>
+                <div class="filter-item" style="margin-left: -130px;">
+                    <label></label>
                     <input type="date" v-model="filters.modifyDate">
                 </div>
 
             </div>
             <div class="filter-actions">
-                <button class="btn query" @click="applyFilters">查询</button>
-                <button class="btn reset" @click="resetFilters">
+                <button class="btn query" @click="applyFilters" style="width: 10px;height: 40px;">查询</button>
+                <button class="btn reset" @click="resetFilters" >
                     <svg t="1740899657675" class="icon" viewBox="0 0 1024 1024" version="1.1"
                         xmlns="http://www.w3.org/2000/svg" p-id="1471" width="200" height="200">
                         <path
@@ -442,7 +442,7 @@ export default defineComponent({
                         <th>ID</th>
                         <th>模板</th>
                         <th>作者</th>
-                        <th style="position: relative;top: 10px;">分类<span class="help-icon"
+                        <th ><p style="margin-top: 8px;">分类</p><span class="help-icon"
                                 style="position: relative;left: 120px;bottom: 30px; " title="a类为超级模板，用户不能操作该模板；
 a类模板提交json，上传该模板的模板有严格的格式校验；">?</span></th>
                         <th>修改时间</th>
@@ -525,8 +525,7 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
 
         <!-- 底部的那个页面跳转按钮 -->
         <div class="pagination" v-if="totalPages > 0">
-            <button :disabled="currentPage === 1" @click="prevPage">
-                < </button>
+            <button :disabled="currentPage === 1" @click="prevPage">&lt;</button>
                     <button @click="changePage($event)"
                         :class="{ active: showPage === currentPage || inpval == showPage }">{{ showPage }}</button>
                     <button @click="changePage($event)" v-if="showPage + 1 <= totalPages"
@@ -541,7 +540,7 @@ a类模板提交json，上传该模板的模板有严格的格式校验；">?</s
                     <!-- <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span> -->
                     <button :disabled="currentPage === totalPages" @click="nextPage">></button>
                     <div>
-                        <input type="text" style="width: 60px; " v-model="inpvals"> <button
+                        <input type="text" style="width: 65px; " v-model="inpvals" placeholder="第几页" @keyup.enter="gotoPage"> <button
                             @click="gotoPage">Go</button>
                     </div>
         </div>
@@ -566,42 +565,34 @@ button.active {
 
 /* 模板管理区域整体布局 */
 .file-management {
+    /* background-color: #f4cdcd; */
     padding: 24px;
-    max-width: 1200px;
     margin: 0 auto;
-    min-width: 1200px;
-    /* 防止内容挤压 */
+overflow: hidden;
 }
 
 /* 页面头部样式 */
 .header {
     margin-bottom: 24px;
     position: relative;
-    right: 100px;
+    left: 0px;
 }
 
 /* 筛选容器基础样式 */
 .filter-container {
-    padding: 2vw;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
     box-sizing: border-box;
+    width: 1200px;
+    /* background: #000; */
 }
 
 /* 筛选组布局 */
 .filter-group {
+    /* background: #000; */
     position: relative;
-    right: 100px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-    margin-bottom: 6px;
 }
 
 /* 筛选项布局 */
 .filter-item {
-    position: relative;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -620,18 +611,20 @@ select {
     border: 1px solid #dcdfe6;
     border-radius: 4px;
     font-size: 14px;
-    width: 200px;
+    width: 160px;
 }
 
 /* 筛选操作按钮区域 */
 .filter-actions {
-    width: 200px;
+    /* background: #973a3a; */
+    width: 190px;
     display: flex;
     position: relative;
-    left: 1030px;
+    left: 1000px;
     bottom: 50px;
     gap: 8px;
     justify-content: flex-end;
+    margin-top: 10px;
 }
 
 /* 按钮基础样式 */
@@ -664,10 +657,12 @@ select {
 
 /* 表格容器样式 */
 .table-container {
+    /* background: #e59999; */
     border: 1px solid #ebeef5;
     border-radius: 8px;
     overflow: visible;
     /* 允许菜单溢出 */
+    margin-top: -30px;
 }
 
 /* 表格基础样式 */
@@ -681,8 +676,9 @@ th {
     background: #f5f7fa;
     color: #909399;
     font-weight: 500;
-    padding: 12px;
+    padding: 5px;
     text-align: center;
+    height: 50px;
 }
 
 /* 表格单元格样式 */
@@ -788,9 +784,9 @@ td {
 /* 下拉菜单基础样式 */
 .action-menu {
     position: absolute;
-    top: 50%;
+    top: 100%;
     /* 垂直居中 */
-    right: -110px;
+    right: 20px;
     /* 根据新位置调整 */
     width: 120px;
     background: transparent;
