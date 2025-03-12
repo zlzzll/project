@@ -115,20 +115,24 @@ const logout = () => {
 }
 
 .menu {
-  flex: 1;
-  padding: 20px 0;
+  width: 250px;
+  height: 220px;
+  background: #516076;
   overflow-y: auto;
-  margin-top: 5px;
+  margin-top: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .menu-item {
-  height: 50px;
+  height: 60px;
+  width: 250px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 5px;
+
   border-radius: 4px;
   margin-left: 10px;
   margin-right: 10px;
@@ -145,7 +149,7 @@ const logout = () => {
 }
 
 .menu-item i {
-  margin-right: 10px;
+  margin-left: 60px;
   font-size: 18px;
   transition: all 0.3s ease;
 }
@@ -166,6 +170,7 @@ const logout = () => {
 
 .user-info {
   height: 80px;
+  margin-top: 450px;
   border-top: 1px solid #1f2d3d;
   display: flex;
   align-items: center;
@@ -179,13 +184,15 @@ const logout = () => {
   border-radius: 50%;
   overflow: hidden;
   margin-right: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid #ffffff33;
   transition: all 0.3s ease;
+  
 }
 .icon{
   width: 100%;
   height: 100%;
   object-fit: cover;
+
 }
 
 .avatar {

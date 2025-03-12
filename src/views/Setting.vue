@@ -194,7 +194,7 @@ const uploadAvatar = async () => {
 <style scoped>
 .settings-container {
     position: relative;
-    top: 4rem;
+    top: 2rem;
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;

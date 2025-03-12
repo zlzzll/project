@@ -184,7 +184,9 @@ export default defineComponent({
             }
             showActionMenu.value = null;
         };
-
+        const goToCreateFile = () => {
+            router.push('/createfile');
+        };
         // 重命名文件
         const renameFile = async (id: number) => {
             try {
@@ -198,7 +200,6 @@ export default defineComponent({
                         inputErrorMessage: '文件名不能为空'
                     }
                 );
-
                 const response = await axios.post(hostname+`/api/ai_case/rename`, {
                     id: id,
                     templateName: newName
@@ -347,6 +348,7 @@ export default defineComponent({
             currentPage,
             showPage,
             inpval,
+            goToCreateFile,
             inpvals,
             totalPages,
             showActionMenu,
@@ -373,6 +375,8 @@ export default defineComponent({
         <header class="header">
             <h2 style="margin-top: -10px;">文件管理</h2>
             <p style="margin-top: -2px;margin-bottom: 20px;">您的文件如下</p>
+            <button style="background: #409eff;color: white;margin-top: -40px;margin-left: 1110px;position: absolute;border-radius: 4px;"
+            @click="goToCreateFile">创建文件</button>
             <hr style="width: 1250px;">
         </header>
 

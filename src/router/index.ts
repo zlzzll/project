@@ -10,6 +10,7 @@ import Fliemange from '../views/Fliemange.vue';
 import CreateTemplate from '../views/CreateTemplate.vue';
 import CreateFile from '../views/CreateFile.vue';
 import Wrong from '../views/Wrong.vue';
+import Editor from '../views/Editor.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -70,6 +71,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/wrong',
     name: 'Wrong',
     component: Wrong
+  },
+  {
+    path: '/Editor',
+    name: 'Editor',
+    component: Editor
   }
 ];
 

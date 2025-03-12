@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hufe921/canvas-editor": "^0.9.104",
     "axios": "^1.8.2",
     "element-plus": "^2.4.3",
     "pinia": "^2.1.7",
+    "prismjs": "^1.30.0",
     "vue": "^3.4.38",
     "vue-router": "^4.2.5"
   },
